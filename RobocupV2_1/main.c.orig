@@ -1,0 +1,268 @@
+/*
+ *  ======== main.c ========
+ */
+
+//=========================Includes============================//
+
+
+#include "Robocup_Define.h"
+#include "Serial.h"
+#include "SPI.h"
+#include "pid.h"
+#include "nRF24L01_driver.h"
+#include "quad_driver.h"
+#include "L3GD20_driver.h"
+#include "DCMotor_driver.h"
+#include "arduino_driver.h"
+#include "two_wheel_ctrl.h"
+#include "CS_demux.h"
+
+uint16_t tested = 0;
+uint16_t receiveData = 0;
+Bool test = false;
+char lettre = ' ';
+/* Flag used by idle function to check if interrupt occurred */
+volatile Bool isrFlag = FALSE;
+
+/*
+ *  ======== taskFxn ========
+ */
+//Robot global variable
+Robot_Handle HandleRobot;
+
+//Set up function executed once before entering OS
+Void SetUp(){
+
+    volatile int status = 0;
+    volatile FILE *fid;
+    char buff[100];
+
+    HandleRobot.HandleCLK = CLK_init((void *)CLK_BASE_ADDR, sizeof(CLK_Obj));
+    HandleRobot.HandleGPIO = GPIO_init((void *)GPIO_BASE_ADDR, sizeof(GPIO_Obj));
+    HandleRobot.HandleCpu = CPU_init((void *)NULL, sizeof(CPU_Obj));
+    HandleRobot.HandleFlash = FLASH_init((void *)FLASH_BASE_ADDR, sizeof(FLASH_Obj));
+    HandleRobot.HandlePll = PLL_init((void *)PLL_BASE_ADDR, sizeof(PLL_Obj));
+    HandleRobot.HandleSCI = SCI_init((void *)SCIA_BASE_ADDR, sizeof(SCI_Obj));
+    HandleRobot.HandleSPI = SPI_init((void *)SPIA_BASE_ADDR, sizeof(SPI_Obj));
+    HandleRobot.HandleWDog = WDOG_init((void *)WDOG_BASE_ADDR, sizeof(WDOG_Obj));
+    HandleRobot.HandlePwm1 = PWM_init((void *)PWM_ePWM1_BASE_ADDR, sizeof(PWM_Obj));
+    HandleRobot.HandlePwm2 = PWM_init((void *)PWM_ePWM2_BASE_ADDR, sizeof(PWM_Obj));
+    HandleRobot.HandlePwm3 = PWM_init((void *)PWM_ePWM3_BASE_ADDR, sizeof(PWM_Obj));
+
+    WDOG_disable(HandleRobot.HandleWDog);
+
+    //Select the internal oscillator 1 as the clock source
+    CLK_setOscSrc(HandleRobot.HandleCLK, CLK_OscSrc_Internal);
+
+    // Setup the PLL for x10 /2 which will yield 50Mhz = 10Mhz * 10 / 2
+    PLL_setup(HandleRobot.HandlePll, PLL_Multiplier_12, PLL_DivideSelect_ClkIn_by_2);
+
+    CPU_disableGlobalInts(HandleRobot.HandleCpu);
+    CPU_clearIntFlags(HandleRobot.HandleCpu);
+
+
+    // Initialize SCIA
+    scia_init(HandleRobot.HandleCLK,HandleRobot.HandleSCI);
+    scia_gpio_init(HandleRobot.HandleGPIO);
+
+    // Initialize SPI
+    spi_init(HandleRobot.HandleCLK,HandleRobot.HandleSPI);
+    spi_fifo_init(HandleRobot.HandleSPI);
+    spi_gpio_init(HandleRobot.HandleGPIO);
+
+    demux_Init(GPIO_Number_19, GPIO_Number_12, GPIO_Number_6, CS_0);
+    demux_disconnect();
+
+    nRFInit(HandleRobot.HandleGPIO,HandleRobot.HandleSPI,GPIO_Number_7,CS_4); // 7 = CE et 6 = CSN
+    HandleRobot.HandleQuad[0] = quad_Init(CS_1);
+<<<<<<< HEAD
+   // HandleRobot.HandleQuad[1] = quad_Init(CS_2);
+=======
+    HandleRobot.HandleQuad[1] = quad_Init(CS_2);
+>>>>>>> origin/master
+
+    //math float to int conversion initialisation
+    math_init();
+
+    L3GD20_Init(CS_5);
+    arduino_Init(CS_3);
+
+
+<<<<<<< HEAD
+    /// PWM
+    HandleRobot.HandleMotor[0] = DCMotor_Init(PWM_1A, GPIO_Number_3);
+    HandleRobot.HandleMotor[1] = DCMotor_Init(PWM_1B, GPIO_Number_5);
+    HandleRobot.HandleMotor[2] = DCMotor_Init(PWM_2A, GPIO_Number_32);
+    HandleRobot.HandleMotor[3] = DCMotor_Init(PWM_3A, GPIO_Number_33);
+=======
+        /// PWM
+
+    //HandleRobot.HandleMotor[0] = DCMotor_Init(PWM_1A,GPIO_Number_3);
+    //HandleRobot.HandleMotor[1] = DCMotor_Init(PWM_1B, GPIO_Number_5);
+    //HandleRobot.HandleMotor[2] = DCMotor_Init(PWM_2A);
+    //HandleRobot.HandleMotor[3] = DCMotor_Init(PWM_2B);
+>>>>>>> origin/master
+
+    //HandleRobot.HandlePid[0] = PID_Init(PID_P, PID_I, PID_D, _IQ(250), _IQ(-250));
+    //HandleRobot.HandlePid[1] = PID_Init(PID_P, PID_I, PID_D, _IQ(250), _IQ(-250));
+
+    //Redirect STDOUT to SCI (System_printf to USB)
+    status = add_device("scia", _SSA, SCI_open, SCI_close, SCI_read, SCI_write, SCI_lseek, SCI_unlink, SCI_rename);
+    fid = fopen("scia","w");
+    freopen("scia:", "w", stdout);
+    setvbuf(stdout, buff, _IOFBF, 100);
+
+}
+/*
+ *  ======== main ========
+ */
+Int main(){
+    /*
+     * use ROV->SysMin to view the characters in the circular buffer
+     */
+    System_printf("************enter OS************\r\n");
+    BIOS_start();    /* does not return */
+    return(0);
+}
+
+
+<<<<<<< HEAD
+/*
+ * ======= Test the connection of all device ======
+ */
+void test_device(){
+	//System_printf("%d\r\n",arduino_Test(),ARDUINO_RECALL_MESSAGE);
+	tested = 1;
+	System_printf("*******Device testing********\r\n");
+	if(arduino_Test())
+		System_printf("Arduino [OK]\r\n");
+	else{
+		System_printf("Arduino [FAIL]\r\n");
+		tested =  0;
+	}
+
+	if(L3GD20_Test())
+		System_printf("Gyro [OK]\r\n");
+	else{
+		System_printf("Gyro [FAIL]\r\n");
+		tested = 0;
+	}
+
+	if(tested)
+		System_printf("SUCCESS\r\n");
+	else
+		System_printf("FAILURE\r\n");
+}
+
+_iq command = _IQ(1);
+void Round_Robin(){
+	if(tested == 0)
+		test_device();
+	else{
+		//quad_ReadCounters(HandleRobot.HandleQuad[0]);
+		//quad_DisplayCounters(HandleRobot.HandleQuad[0]);
+
+
+	//L3GD20_ReadZData();
+	//test = nRF_Listen(HandleRobot.HandleGPIO, HandleRobot.HandleSPI); //Read RF transmission
+	//arduino_WriteRegister(ARDUINO_GPIO_3, ARDUINO_HIGH);
+	///quad_CalculateSpeed(HandleRobot.HandleQuad[0]);
+=======
+//This function is executed every 10 ms
+void Round_Robin(){
+	//test = nRF_Listen(HandleRobot.HandleGPIO, HandleRobot.HandleSPI); //Read RF transmission
+	//quad_CalculateSpeed();
+	//quad_DisplayVelocity();
+>>>>>>> origin/master
+
+	//PID_Update(&HandleRobot.HandlePid[0], _IQabs(HandleRobot.robotParam.wheelVelocity[0]));
+	//PID_Update(&HandleRobot.HandlePid[1], _IQabs(HandleRobot.robotParam.wheelVelocity[1]));
+	///quad_DisplayVelocity(HandleRobot.HandleQuad[0]);
+
+	//DCMotor_SetPWM(HandleRobot.HandleMotor[0], 600);
+	///DCMotor_SetPWM(HandleRobot.HandleMotor[1], 600);
+	//DCMotor_SetPWM(HandleRobot.HandleMotor[2], 600);
+	//DCMotor_SetPWM(HandleRobot.HandleMotor[3], 600);
+
+	//DCMotor_UpdatePWM(HandleRobot.HandleMotor[0],_IQint(HandleRobot.HandlePid[0].term.Out));
+	//DCMotor_UpdatePWM(HandleRobot.HandleMotor[1],_IQint(HandleRobot.HandlePid[1].term.Out));
+	DCMotor_SetPWM(HandleRobot.HandleMotor[0], 300);
+	//DCMotor_SetPWM(HandleRobot.HandleMotor[0], 300);
+	}
+}
+
+//This function is executed when roundRobin is not
+void Idle(){
+	if( SCI_getRxFifoStatus (HandleRobot.HandleSCI) >= SCI_FifoStatus_1_Word){
+		lettre = SCI_getData (HandleRobot.HandleSCI);
+		SCI_resetRxFifo(HandleRobot.HandleSCI);
+	}
+
+	if(test){
+		nRF_DisplayRXPayload();
+		test = false;
+	}
+	if(lettre == 'r'){
+		quad_ReadCounters(&HandleRobot.HandleQuad[0]);
+		quad_ReadCounters(&HandleRobot.HandleQuad[1]);
+		System_printf("Quad 0 : ");
+		quad_DisplayCounters(HandleRobot.HandleQuad[0]);
+		System_printf("Quad 1 : ");
+		quad_DisplayCounters(HandleRobot.HandleQuad[1]);
+		lettre = ' ';
+	}
+	if(lettre == '3'){
+		demux_connect_to( CS_3);
+		System_printf("cs = 3 \n\r");
+		lettre = ' ';
+		}
+	if(lettre == '4'){
+			demux_connect_to( CS_4);
+			System_printf("cs = 4 \n\r");
+			lettre = ' ';
+			}
+	if(lettre == '5'){
+			demux_connect_to( CS_5);
+			System_printf("cs = 5 \n\r");
+			lettre = ' ';
+			}
+	if(lettre == 'q'){
+			//DCMotor_setDirection(HandleRobot.HandleMotor[0],LEFT);
+			//DCMotor_setDirection(HandleRobot.HandleMotor[1],LEFT);
+			lettre = ' ';
+		}
+	if(lettre == 'w'){
+			//DCMotor_setDirection(HandleRobot.HandleMotor[0],RIGHT);
+			//DCMotor_setDirection(HandleRobot.HandleMotor[1],RIGHT);
+		    nRF_DisplayRegister();
+			lettre = ' ';
+		}
+
+	System_flush();
+}
+
+
+//SYS/BIOS call this function when system_flush is called
+void System_Output(Char *string, UInt length){
+	//send System buffer to serial.
+	SCI_write(1, string,length);
+}
+
+//fake delay function
+void System_10msDelay(uint32_t ms){
+	uint32_t i,j = 0;
+	for(i = 0;i < ms;i++){
+		for(j = 0;j < 10000;j++);
+	}
+}
+
+//change values to IQ
+void math_init(){
+	_iq buf = 0;
+	HandleRobot.robotParam.wheelRadius = _IQ(WHEEL_RADIUS);
+	HandleRobot.robotParam.roundRobinTime = _IQ(RRTIME);
+	HandleRobot.robotParam.encoderPPR = ENCODER_PPR;
+	buf = _IQmpyI32(HandleRobot.robotParam.roundRobinTime,ENCODER_PPR);
+	buf = _IQdiv(HandleRobot.robotParam.wheelRadius,buf);
+	HandleRobot.robotParam.speedFactor= buf;
+}
