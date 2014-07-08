@@ -35,7 +35,8 @@ public:
     Packer(Serial * pSerial);
     void createSpeedCommand(float iX, float iY, float iTheta, unsigned char iId);
     void createSetPidCommand(float iP, float iI, float iD, unsigned char iId); //It could be the same function but for now it read better
-    static unsigned char FLAGBYTE;
+    static unsigned char STARTBYTE;
+    static unsigned char STOPBYTE;
     static unsigned char ESCAPEBYTE;
 
     void sendPacket();
@@ -45,7 +46,8 @@ private:
     void pppProtocol();
     void insertFloatInPacket(float iData);
     void insertIntInPacket(int iData);
-    void insertFlagByteInPacket();
+    void insertStartByteInPacket();
+    void insertStopByteInPacket();
 
     dataConverter mDataConverter;
     Serial * mSerial;
