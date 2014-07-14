@@ -18,8 +18,17 @@ const int       ARDUINO_GPIO_6              =	   0xB6;
 const int       ARDUINO_GPIO_7              =	   0xB7;
 const int       ARDUINO_GPIO_8              =	   0xB8;
 const int       ARDUINO_GPIO_9              =	   0xB9;
+const int       ARDUINO_RECALL              =	   0xC0;
+
 const int       ARDUINO_LOW                 =	   0;
 const int       ARDUINO_HIGH                =	   1;
+const int       ARDUINO_RECALL_MESSAGE      =	   0xEE;
+
+
+const int greenPin = 8; 
+const int redPin = 4; 
+const int bluePin = 9; 
+const int initialize_delay = 2000; 
 
 byte reg;
 byte value;
@@ -59,7 +68,8 @@ void setup (void)
 
 
  Serial.println("Séquence de démarrage");
- delay(2000);
+  //initsequence(); //Sequence d'initialisation
+  //delay(initialize_delay);
  
   // GPIO
   pinMode(2, OUTPUT);
@@ -95,9 +105,9 @@ void setup (void)
 
 // Call for each Master request
 ISR (SPI_STC_vect){
-  // Master request
+  // Master request (SPDR = Registre hardware SPI)
   byte c = SPDR;  
-  // We check that this is not the start of
+  // We check that this is not the start of a request
   if (!gotAValue){
     if(!gotAReg){
       reg = c;
@@ -105,26 +115,32 @@ ISR (SPI_STC_vect){
     }
     else{
       value = c;
-      if(reg == ARDUINO_GPIO_2)
-        updateGPIO(2, value);
-      else if(reg == ARDUINO_GPIO_3)
-        updateGPIO(3, value);
-      else if(reg == ARDUINO_GPIO_4)
-        updateGPIO(4, value);
-      else if(reg == ARDUINO_GPIO_5)
-        updateGPIO(5, value);
-      else if(reg == ARDUINO_GPIO_6)
-        updateGPIO(6, value);
-      else if(reg == ARDUINO_GPIO_7)
-        updateGPIO(7, value);
-      else if(reg == ARDUINO_GPIO_8)
-        updateGPIO(8, value);
-      else if(reg == ARDUINO_GPIO_9)
-        updateGPIO(9, value);
+	
+       // Register that change the GPIO state start by "0xBX"
+      if(reg & 0xF0 == 0xB0){
+	      if(reg == ARDUINO_GPIO_2)
+		updateGPIO(2, value);
+	      else if(reg == ARDUINO_GPIO_3)
+		updateGPIO(3, value);
+	      else if(reg == ARDUINO_GPIO_4)
+		updateGPIO(4, value);
+	      else if(reg == ARDUINO_GPIO_5)
+		updateGPIO(5, value);
+	      else if(reg == ARDUINO_GPIO_6)
+		updateGPIO(6, value);
+	      else if(reg == ARDUINO_GPIO_7)
+		updateGPIO(7, value);
+	      else if(reg == ARDUINO_GPIO_8)
+		updateGPIO(8, value);
+	      else if(reg == ARDUINO_GPIO_9)
+		updateGPIO(9, value);
+      }
+      else if(reg == ARDUINO_BAT_MONITOR_1)
+        SPDR = batV7;
+      else if(reg == ARDUINO_RECALL)
+          SPDR = ARDUINO_RECALL_MESSAGE;
       gotAValue = true;
-    }  // end of room available
-    if(reg == ARDUINO_BAT_MONITOR_1)
-      SPDR = batV7;
+    } 
     //SPDR = 0xE5;
   }
 }  // end of interrupt routine SPI_STC_vect
@@ -149,7 +165,21 @@ void loop (void){
   batV16 = monV16.getBusVoltage_V() + (monV16.getShuntVoltage_mV() / 1000);
   batP7 = batV7 * monV7.getCurrent_mA();
   batP16 = batV16 * monV16.getCurrent_mA();
+  
+  Serial.print(batV7);
+  Serial.print(" ");
+  Serial.println(batV16);
+  if(batV7 > 6 && batV16 > 12 && batV16 < 30)//Vérifie que la batterie a une tension suppérieure à 12 V
+    setColor(0, 170, 0); // Green
+  else if(batV16 <= 12){  //Vérifie que la batterie a une tension suppérieure à 12 V
+    setColor(170, 0, 0); // Red
+    digitalWrite(7, LOW);
+  }
+  else
+    setColor(170, 0, 0); // Red
+    
 
+/*
   Serial.print("BatV7: v=");
   Serial.print(batV7);
   Serial.print(" BatV16: v=");
@@ -160,7 +190,7 @@ void loop (void){
   Serial.print(monV16.getCurrent_mA());
   Serial.print(" BatV16: p=");
   Serial.println(batP16);
-
+*/
   if (gotAValue && gotAReg){
 
     Serial.print(reg);
@@ -174,6 +204,30 @@ void loop (void){
     gotAReg = false;
     gotAValue = false;
   }  // end of flag set
+  
 
 }  // end of loop
+
+
+//sequence d'initialisation (just for fun)
+void initsequence()
+{
+  setColor(0, 0, 170); // blue
+  delay(initialize_delay);
+
+  setColor(0, 170, 0); // Green
+  delay(initialize_delay);
+
+  setColor(170, 0, 0); // Red
+  delay(initialize_delay);    
+}//----FIN--- de l'inialisation
+
+//Fonction afin de faire allumer la led RGB
+void setColor(int red, int green, int blue) 
+{
+  analogWrite(redPin, red); 
+  analogWrite(greenPin, green); 
+  analogWrite(bluePin, blue); 
+}
+
 
