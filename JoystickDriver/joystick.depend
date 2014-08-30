@@ -8057,3 +8057,27 @@
 	<iostream>
 	"Serial.h"
 
+1404935686 source:c:\users\mathieu garon\desktop\projets\repertoiresrobocup\robocup_ll\joystickdriver\main.cpp
+	<SFML/Graphics.hpp>
+	<iostream>
+	<sstream>
+	"Serial.h"
+	"packer.h"
+	<math.h>
+
+1394825460 c:\users\mathieu garon\desktop\projets\repertoiresrobocup\robocup_ll\joystickdriver\serial.h
+	<windows.h>
+	<stdio.h>
+	<stdlib.h>
+
+1404852989 c:\users\mathieu garon\desktop\projets\repertoiresrobocup\robocup_ll\joystickdriver\packer.h
+	<queue>
+	<iostream>
+	"Serial.h"
+
+1394825250 source:c:\users\mathieu garon\desktop\projets\repertoiresrobocup\robocup_ll\joystickdriver\serial.cpp
+	"Serial.h"
+
+1404852882 source:c:\users\mathieu garon\desktop\projets\repertoiresrobocup\robocup_ll\joystickdriver\packer.cpp
+	"packer.h"
+

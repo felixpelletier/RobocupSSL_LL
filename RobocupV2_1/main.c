@@ -232,12 +232,13 @@ void Idle(){
 	lettre = ' ';
 
 #endif
-	if(debugFlag){
+	/*if(debugFlag){
 		System_printf("X = %f , Y = %f, Theta = %f\n\r",HandleRobot.robotParam.XVelocityCommand.floating,
 				HandleRobot.robotParam.YVelocityCommand.floating,
 				HandleRobot.robotParam.ThetaVelocityCommand.floating);
+		System_printf("pwm motor 0 = %d",dcMotor_getPWM(&HandleRobot.HandleMotor[0]));
 		debugFlag = false;
-	}
+	}*/
 
 	System_flush();
 }
