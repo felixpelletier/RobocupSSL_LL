@@ -166,7 +166,9 @@ void Round_Robin(){
 	quad_readCounters(&HandleRobot.HandleQuad[0]);
 	quad_readCounters(&HandleRobot.HandleQuad[1]);
 
-
+	/*System_printf("x=%f y=%f theta=%f\r\n",HandleRobot.robotParam.XVelocityCommand.floating
+									  ,HandleRobot.robotParam.YVelocityCommand.floating
+	x								  ,HandleRobot.robotParam.ThetaVelocityCommand.floating);*/
 	//***Cinetic Model math***
 	fourWheelCtrl_Update( _IQ(HandleRobot.robotParam.XVelocityCommand.floating),
 						  _IQ(HandleRobot.robotParam.YVelocityCommand.floating),

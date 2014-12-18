@@ -28,6 +28,6 @@ void setVelocityCommand(uint8_t buffer[12]){
 	HandleRobot.robotParam.ThetaVelocityCommand.bytes[0] = (buffer[9]<<8) | buffer[8];
 	HandleRobot.robotParam.ThetaVelocityCommand.bytes[1] = (buffer[11]<<8) | buffer[10];
 
-	System_printf("%x %x %x %x", buffer[9],buffer[8],buffer[11],buffer[10]);
+	//System_printf("%x %x %x %x", buffer[9],buffer[8],buffer[11],buffer[10]);
 }
 

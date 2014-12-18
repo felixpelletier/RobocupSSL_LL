@@ -54,7 +54,7 @@ typedef _Bool bool_t;
 #define ONE_ENCODER_PPR 0.0009804	// 1/ENCODER_PPR = 1/1020
 #define PI _IQ(3.1415926535897932384626433832795)
 
-#define MIN_SPEED _IQ(0.2)
+#define MIN_SPEED _IQ(0.02)
 
 /*--------------------------------------------------------------------------------------------------
  * Genral constant
@@ -179,7 +179,7 @@ typedef struct DCMotor_Handle {
  * 								PID
  ****************************************************************************/
 
-#define PID_P _IQ(1)
+#define PID_P _IQ(13)
 #define PID_I _IQ(0)
 //#define PID_I _IQ(0.005)
 #define PID_D _IQ(0.000)
