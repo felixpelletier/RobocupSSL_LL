@@ -10,6 +10,8 @@ Robocup_RadioBase_V1_0/.config/
 
 RobocupV2_1/Debug/*
 RobocupV2_1/src/sysbios/sysbios.a28L
+RobocupV2_2/Debug/*
+RobocupV2_2/src/sysbios/sysbios.a28L
 
 *.o
 *.exe
