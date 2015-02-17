@@ -48,7 +48,7 @@ void imu_init(chip_select pGyroSCpin, chip_select pAccSCpin){
          0  SIM       SPI Mode (0=4-wire, 1=3-wire)                       0 */
 
 
-    imu_writeRegister_G(LSM9DS0_REGISTER_CTRL_REG4_G, 0x00);
+    imu_writeRegister_G(LSM9DS0_REGISTER_CTRL_REG4_G, 0x10);
 
 
     imu_writeRegister_AM(LSM9DS0_REGISTER_REG1_XM, 0x67);

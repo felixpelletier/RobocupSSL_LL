@@ -4,7 +4,7 @@
  *  Created on: 2014-01-09
  *      Author: Philippe Babin
  */
-
+#define NO_DEMUX
 
 #include "CS_demux.h"
 
