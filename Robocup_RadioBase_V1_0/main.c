@@ -14,6 +14,7 @@
 #include "testTool.h"
 
 #define RELEASE
+//#define DEBUG
 //#define HARDWARE_TEST
 
 uint16_t receiveData = 0;
@@ -42,7 +43,7 @@ Void SetUp(){
     HandleRobot.HandleSCI = SCI_init((void *)SCIA_BASE_ADDR, sizeof(SCI_Obj));
     HandleRobot.HandleSPI = SPI_init((void *)SPIA_BASE_ADDR, sizeof(SPI_Obj));
     HandleRobot.HandleWDog = WDOG_init((void *)WDOG_BASE_ADDR, sizeof(WDOG_Obj));
-    //HandleRobot.HandlePIE = PIE_init((void *)PIE_BASE_ADDR, sizeof(PIE_Obj));
+    HandleRobot.HandlePIE = PIE_init((void *)PIE_BASE_ADDR, sizeof(PIE_Obj));
     WDOG_disable(HandleRobot.HandleWDog);
 
     //Select the internal oscillator 1 as the clock source
@@ -55,7 +56,7 @@ Void SetUp(){
     CPU_clearIntFlags(HandleRobot.HandleCpu);
 
     // Setup a debug vector table and enable the PIE
-    //PIE_enable(HandleRobot.HandlePIE);
+    PIE_enable(HandleRobot.HandlePIE);
 
 
     // Initialize SCIA
@@ -158,13 +159,13 @@ Void Idle(){
 
 	if(lettre == 'u'){
 		Unpacker_cleanPlayerBuffer(&HandleRobot.HandleUnPacker, 1);
-		CB_write(&HandleRobot.HandleCB, FLAGBYTE);
+		//CB_write(&HandleRobot.HandleCB, FLAGBYTE);
 		CB_write(&HandleRobot.HandleCB, 1);
 		CB_write(&HandleRobot.HandleCB, 1);
 		Unpacker_parseBuffer(&HandleRobot.HandleUnPacker, &HandleRobot.HandleCB);
 		CB_write(&HandleRobot.HandleCB, 2);
 		CB_write(&HandleRobot.HandleCB, 3);
-		CB_write(&HandleRobot.HandleCB, FLAGBYTE);
+		//CB_write(&HandleRobot.HandleCB, FLAGBYTE);
 		Unpacker_parseBuffer(&HandleRobot.HandleUnPacker, &HandleRobot.HandleCB);
 		int i = 0;
 		for (i=0; i<3; i++){
@@ -184,6 +185,7 @@ Void sci_rx_interupt(){
 	for(i=0;i<2;++i){
 		uint16_t byte = SCI_getData(HandleRobot.HandleSCI);
 		CB_write(&HandleRobot.HandleCB, byte);
+		//System_printf("0x%x", byte);
 	}
 	if(SCI_RxOverflow(HandleRobot.HandleSCI)){
 		SCI_resetRxFifo(HandleRobot.HandleSCI);
@@ -205,6 +207,7 @@ Void System_10msDelay(uint32_t ms){
 		for(j = 0;j < 10000;j++);
 	}
 }
+
 Void System_100usDelay(uint32_t us){
 	uint32_t i,j = 0;
 	for(i = 0;i < us;i++){

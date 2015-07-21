@@ -59,6 +59,7 @@ bool Unpacker_parseBuffer(UnPacker_Handle *unpacker, CB_Handle *CB){
 					return true;
 				}
 				else{
+					//System_printf("%x", byte);
 					UnPacker_addByte(unpacker, byte);
 				}
 			}

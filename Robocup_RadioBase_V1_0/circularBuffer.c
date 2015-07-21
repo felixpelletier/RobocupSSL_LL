@@ -31,6 +31,7 @@ bool CB_write(CB_Handle *circularBuffer,uint16_t pByte){
 		circularBuffer->dataBufferCursorWrite =
 				(circularBuffer->dataBufferCursorWrite + 1) % CIRCULARBUFFER_SIZE;
 		//System_printf("\n\r%d",circularBuffer->dataBufferCursorWrite);
+		//System_printf("%x", pByte);
 		return true;
 	}
 }

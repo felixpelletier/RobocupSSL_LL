@@ -15,7 +15,7 @@
 #include "quad_driver.h"
 #include "L3GD20_driver.h"
 #include "LSM9DS0_driver.h"
-#include "DCMotor_driver.h"s
+#include "DCMotor_driver.h"
 #include "arduino_driver.h"
 #include "four_wheel_ctrl.h"
 #include "CS_demux.h"

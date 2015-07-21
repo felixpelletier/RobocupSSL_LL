@@ -128,12 +128,12 @@ void nRF_sendPackets(UnPacker_Handle *buffers){
 
 		uint16_t j = 0;
 		if(buffers->playerReady[i]){
-			//System_printf("\n\rSend:");
+			System_printf("\n\rSend:");
 			for(j = 0; j < PLAYER_BUFFER_SIZE; ++j){
 				HandleRF.TXPayload[j] = buffers->playerBuffer[i][j];
-				//System_printf("%d",HandleRF.TXPayload[j]);
+				System_printf("%d",HandleRF.TXPayload[j]);
 			}
-			//System_printf("\n");
+			System_printf("\n");
 			if(i == 0){  //TODO : just send data to robot 0 for now!!
 				nRF_WriteTXPayload(HandleRobot.HandleGPIO,HandleRobot.HandleSPI,PLAYER_BUFFER_SIZE);
 				nRF_setCE(true,HandleRobot.HandleGPIO);

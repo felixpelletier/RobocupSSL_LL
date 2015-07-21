@@ -39,8 +39,8 @@
 								<option id="com.ti.ccstudio.buildDefinitions.C2000_6.2.compilerID.SILICON_VERSION.1206653911" name="Processor version (--silicon_version, -v)" superClass="com.ti.ccstudio.buildDefinitions.C2000_6.2.compilerID.SILICON_VERSION" value="com.ti.ccstudio.buildDefinitions.C2000_6.2.compilerID.SILICON_VERSION.28" valueType="enumerated"/>
 								<option id="com.ti.ccstudio.buildDefinitions.C2000_6.2.compilerID.INCLUDE_PATH.502154114" name="Add dir to #include search path (--include_path, -I)" superClass="com.ti.ccstudio.buildDefinitions.C2000_6.2.compilerID.INCLUDE_PATH" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${CG_TOOL_ROOT}/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;C:\ti\controlSUITE\device_support\f2802x\v220&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;C:\ti\controlSUITE\libs\math\IQmath\v160\include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${WORKSPACE_LOC}/C2000_LaunchPad&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${WORKSPACE_LOC}/IQmath/v160/include&quot;"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.C2000_6.2.compilerID.DEBUGGING_MODEL.330816427" name="Debugging model" superClass="com.ti.ccstudio.buildDefinitions.C2000_6.2.compilerID.DEBUGGING_MODEL" value="com.ti.ccstudio.buildDefinitions.C2000_6.2.compilerID.DEBUGGING_MODEL.SYMDEBUG__DWARF" valueType="enumerated"/>
 								<option id="com.ti.ccstudio.buildDefinitions.C2000_6.2.compilerID.DIAG_WARNING.628220751" name="Treat diagnostic &lt;id&gt; as warning (--diag_warning, -pdsw)" superClass="com.ti.ccstudio.buildDefinitions.C2000_6.2.compilerID.DIAG_WARNING" valueType="stringList">
@@ -58,8 +58,8 @@
 								<option id="com.ti.ccstudio.buildDefinitions.C2000_6.2.linkerID.OUTPUT_FILE.1838199414" name="Specify output file name (--output_file, -o)" superClass="com.ti.ccstudio.buildDefinitions.C2000_6.2.linkerID.OUTPUT_FILE" value="&quot;${ProjName}.out&quot;" valueType="string"/>
 								<option id="com.ti.ccstudio.buildDefinitions.C2000_6.2.linkerID.MAP_FILE.129907508" name="Input and output sections listed into &lt;file&gt; (--map_file, -m)" superClass="com.ti.ccstudio.buildDefinitions.C2000_6.2.linkerID.MAP_FILE" value="&quot;${ProjName}.map&quot;" valueType="string"/>
 								<option id="com.ti.ccstudio.buildDefinitions.C2000_6.2.linkerID.LIBRARY.1791520231" name="Include library file or command file as input (--library, -l)" superClass="com.ti.ccstudio.buildDefinitions.C2000_6.2.linkerID.LIBRARY" valueType="libs">
-									<listOptionValue builtIn="false" value="&quot;C:\ti\controlSUITE\libs\math\IQmath\v160\lib\IQmath.lib&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;C:\ti\controlSUITE\device_support\f2802x\v220\f2802x_common\lib\driverlib.lib&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${WORKSPACE_LOC}/IQmath/v160/lib/IQmath.lib&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${WORKSPACE_LOC}/C2000_LaunchPad/f2802x_common/lib/driverlib.lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;libc.a&quot;"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.C2000_6.2.linkerID.SEARCH_PATH.575042976" name="Add &lt;dir&gt; to library search path (--search_path, -i)" superClass="com.ti.ccstudio.buildDefinitions.C2000_6.2.linkerID.SEARCH_PATH" valueType="libPaths">
