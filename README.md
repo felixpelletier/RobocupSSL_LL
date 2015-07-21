@@ -14,6 +14,7 @@ Description of the content of the various folders:
  * NOTE: You don't need to install ControlSUITE. All the required C2000 f2802x librairies are in C2000_include_zipped.zip
 
 ##How to include the C2000 librairies##
-On Linux execute the unzip_C2000_include.sh. The extracted files must be at the root of the CCS workspace
+On Linux execute the unzip_C2000_include.sh. The extracted files must be at the root of the CCS workspace.
+Then in project's properties go in C2000 Linker -> File Search Path. In add include lib, write the following path : "${WORKSPACE_LOC}/C2000_LaunchPad/f2802x_common/lib/driverlib.lib"
 
 On Windows unzip the C2000_include_zipped.zip at the root of the CCS workspace
