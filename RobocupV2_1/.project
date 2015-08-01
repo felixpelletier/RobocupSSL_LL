@@ -35,11 +35,11 @@
 	<variableList>
 		<variable>
 			<name>INSTALLROOT_LAUNCHXL_F28027_V100</name>
-			<value>file:/home/robocup/Desktop/RobocupSSL_LL/RobocupV2_1</value>
+			<value>$%7BPROJECT_LOC%7D</value>
 		</variable>
 		<variable>
 			<name>INSTALLROOT_LAUNCHXL_F28027_V1001</name>
-			<value>file:/home/robocup/Desktop/RobocupSSL_LL/RobocupV2_1</value>
+			<value>$%7BPROJECT_LOC%7D</value>
 		</variable>
 	</variableList>
 </projectDescription>
