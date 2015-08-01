@@ -5,7 +5,7 @@
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROGRAM.Texas Instruments XDS100v2 USB Emulator/C28xx" value="${build_artifact:Robocup_RadioBase_V1.0}"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROJECT.Texas Instruments XDS100v2 USB Emulator/C28xx" value="Robocup_RadioBase_V1.0"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_TARGET_CONFIG" value="${target_config_active_default:Robocup_RadioBase_V1.0}"/>
-<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.Texas Instruments XDS100v2 USB Emulator/C28xx" value="/home/mathieu/sourceRepos/Ccs/RobocupSSL_LL/Robocup_RadioBase_V1_0/Debug/Robocup_RadioBase_V1.0.out"/>
+<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.Texas Instruments XDS100v2 USB Emulator/C28xx" value="/home/robocup/Desktop/RobocupSSL_LL/Robocup_RadioBase_V1_0/Debug/Robocup_RadioBase_V1.0.out"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/Robocup_RadioBase_V1.0"/>
 </listAttribute>

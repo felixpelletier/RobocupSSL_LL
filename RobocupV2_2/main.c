@@ -5,7 +5,7 @@
 //=========================Includes============================//
 
 //#define RELEASE   //RELEASE or DEBUG
-//#define HARDWARE_TEST
+#define HARDWARE_TEST
 
 #include "Robocup_Define.h"
 #include "Serial.h"
@@ -209,8 +209,8 @@ bool debugFlag = false;
 
 //This function is executed every 10 ms
 void Round_Robin(){
-	ADC_forceConversion(HandleRobot.HandleADC , ADC_SocNumber_0);
-	Digital_Result = ADC_readResult(HandleRobot.HandleADC, ADC_ResultNumber_0);
+	//ADC_forceConversion(HandleRobot.HandleADC , ADC_SocNumber_0);
+	//Digital_Result = ADC_readResult(HandleRobot.HandleADC, ADC_ResultNumber_0);
 	System_printf("ADC: %d\r\n", Digital_Result);
 	//imu_readZGyro();
 

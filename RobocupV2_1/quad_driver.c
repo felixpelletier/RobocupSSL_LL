@@ -56,7 +56,7 @@ void quad_readCounters(quad_Handle *pQuad){
 	SPI_write(HandleRobot.HandleSPI, 0x00); //dummy
 	SPI_write(HandleRobot.HandleSPI, 0x00); //dummy
 	SPI_write(HandleRobot.HandleSPI, 0x00); //dummy
-	while(SPI_getRxFifoStatus(HandleRobot.HandleSPI) < SPI_FifoStatus_2_Words);
+	while(SPI_getRxFifoStatus(HandleRobot.HandleSPI) < SPI_FifoStatus_3_Words);
 	lCount1[0] = SPI_read(HandleRobot.HandleSPI);
 	lCount0[1] = SPI_read(HandleRobot.HandleSPI);
 	lCount0[0] = SPI_read(HandleRobot.HandleSPI);

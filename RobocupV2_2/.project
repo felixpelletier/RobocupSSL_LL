@@ -29,17 +29,17 @@
 		<link>
 			<name>driverlib.lib</name>
 			<type>1</type>
-			<location>/home/mathieu/sourceRepos/Ccs/RobocupSSL_LL/RobocupV2_2/driverlib.lib</location>
+			<locationURI>PARENT-1-PROJECT_LOC/driverlib.lib</locationURI>
 		</link>
 	</linkedResources>
 	<variableList>
 		<variable>
 			<name>INSTALLROOT_LAUNCHXL_F28027_V100</name>
-			<value>file:/home/mathieu/sourceRepos/Ccs/C2000_LaunchPad</value>
+			<value>file:/home/robocup/Desktop/RobocupSSL_LL/RobocupV2_2</value>
 		</variable>
 		<variable>
 			<name>INSTALLROOT_LAUNCHXL_F28027_V1001</name>
-			<value>file:/home/mathieu/sourceRepos/Ccs/C2000_LaunchPad</value>
+			<value>file:/home/robocup/Desktop/RobocupSSL_LL/RobocupV2_2</value>
 		</variable>
 	</variableList>
 </projectDescription>

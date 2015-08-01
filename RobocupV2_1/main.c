@@ -157,6 +157,7 @@ void Round_Robin(){
 
 	//***Unpack***
 	if(newPacket){
+		System_printf("new packet\r\n");
 		debugFlag = true;
 		unpackBuffer(HandleRF.RXPayload);
 	}
@@ -238,7 +239,6 @@ void Idle(){
 		System_printf("X = %f , Y = %f, Theta = %f\n\r",HandleRobot.robotParam.XVelocityCommand.floating,
 				HandleRobot.robotParam.YVelocityCommand.floating,
 				HandleRobot.robotParam.ThetaVelocityCommand.floating);
-		//System_printf("pwm motor 0 = %d",dcMotor_getPWM(&HandleRobot.HandleMotor[0]));
 		debugFlag = false;
 	}
 

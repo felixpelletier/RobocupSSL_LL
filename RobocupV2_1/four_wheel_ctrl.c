@@ -31,11 +31,10 @@ void fourWheelCtrl_Update( _iq pX, _iq pY, _iq pTheta){
 	// dephasage = 315 degrees = 5.4977825 radians
 	_iq v3 = _IQmpy(magnitude, _IQsin(angle + _IQ(5.4977825)));
 
-
-	HandleRobot.HandlePid[0].term.Ref = v2; // + pTheta;
-	HandleRobot.HandlePid[1].term.Ref = v3; // + pTheta;
-	HandleRobot.HandlePid[2].term.Ref = v0; // + pTheta;
-	HandleRobot.HandlePid[3].term.Ref = v1; // + pTheta;
+	HandleRobot.HandlePid[0].term.Ref = v2;// + pTheta;
+	HandleRobot.HandlePid[1].term.Ref = v3;// + pTheta;
+	HandleRobot.HandlePid[2].term.Ref = v0;// + pTheta;
+	HandleRobot.HandlePid[3].term.Ref = v1;// + pTheta;
 
 	if(_IQtoF(HandleRobot.HandlePid[0].term.Ref) < 0 ){dcMotor_setDirection(&HandleRobot.HandleMotor[0],RIGHT);}
 	else{dcMotor_setDirection(&HandleRobot.HandleMotor[0],LEFT);}

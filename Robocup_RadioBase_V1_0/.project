@@ -28,7 +28,7 @@
 	<variableList>
 		<variable>
 			<name>INSTALLROOT_LAUNCHXL_F28027_V1001</name>
-			<value>$%7BPARENT-1-CCS_INSTALL_ROOT%7D/controlSUITE/development_kits/C2000_LaunchPad</value>
+			<value>$%7BPARENT-1-PROJECT_LOC%7D/driverlib.lib</value>
 		</variable>
 	</variableList>
 </projectDescription>
