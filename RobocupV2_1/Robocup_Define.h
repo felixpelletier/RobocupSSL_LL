@@ -80,13 +80,24 @@ void robotParam_init();
 typedef short             int16;
 //typedef unsigned short    Uint16;
 
+typedef enum{
+	CS_0,
+	CS_1,
+	CS_2,
+	CS_3,
+	CS_4,
+	CS_5,
+	CS_6,
+	CS_7
+} chip_select;
+
 /****************************************************************************
  * 								RF MODULE
  ****************************************************************************/
 
 typedef struct nRF24L01_Handle {
 	GPIO_Number_e structCePin;
-	GPIO_Number_e structCSNPin;
+	chip_select structCSNPin;
 	uint16_t Reg[10];  //generic registers
 	uint8_t TXPayload[PLAYER_BUFFER_SIZE];
 	uint8_t RXPayload[PLAYER_BUFFER_SIZE];
@@ -99,17 +110,6 @@ typedef struct nRF24L01_Handle {
 /****************************************************************************
  * 								QUADRATURE DECODER
  ****************************************************************************/
-
-typedef enum{
-	CS_0,
-	CS_1,
-	CS_2,
-	CS_3,
-	CS_4,
-	CS_5,
-	CS_6,
-	CS_7
-} chip_select;
 
 typedef struct quad_Handle {
 	chip_select structCSNPin;

@@ -16,7 +16,6 @@
 **************************************************************************************************/
 void nRFInit(GPIO_Handle HandleGPIO, SPI_Handle HandleSPI, GPIO_Number_e CePin, chip_select MuxValue)
 {
-	uint8_t i = 0;
 	HandleRF.structCePin = CePin;
 	HandleRF.structCSNPin = MuxValue;
     // Configure gpio for RF module

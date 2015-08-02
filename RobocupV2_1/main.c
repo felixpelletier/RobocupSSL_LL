@@ -39,7 +39,7 @@ Robot_Handle HandleRobot;
 Void SetUp(){
 
     volatile int status = 0;
-    volatile FILE *fid;
+    //volatile FILE *fid;
     char buff[100];
 
     HandleRobot.HandleCLK = CLK_init((void *)CLK_BASE_ADDR, sizeof(CLK_Obj));
@@ -105,8 +105,8 @@ Void SetUp(){
     HandleRobot.HandlePid[2].term.Ref = _IQ(0);
     HandleRobot.HandlePid[3].term.Ref = _IQ(0);
 
-    status = add_device("scia", _SSA, SCI_open, SCI_close, SCI_read, SCI_write, SCI_lseek, SCI_unlink, SCI_rename);
-    fid = fopen("scia","w");
+    //status = add_device("scia", _SSA, SCI_open, SCI_close, SCI_read, SCI_write, SCI_lseek, SCI_unlink, SCI_rename);
+    //fid = fopen("scia","w");
     freopen("scia:", "w", stdout);
     setvbuf(stdout, buff, _IOFBF, 100);
 
