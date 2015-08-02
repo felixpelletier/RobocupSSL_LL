@@ -15,21 +15,21 @@
 /****************************************************************************
  *   MD quadrature decoder Register
  *****************************************************************************/
-#define QUAD_CONFIG0 0x00 <<8
-#define QUAD_CONFIG1 0x01 <<8
-#define QUAD_CONFIG2 0x02 <<8
-#define QUAD_CONFIG3 0x03 <<8
-#define QUAD_CONFIG4 0x04 <<8
-#define QUAD_CTRL 	 0x30 <<8    //mainly used to set counter to zero
-#define QUAD_COUNTER 0x08 <<8
+static const uint16_t QUAD_CONFIG0 = 0x00u << 8;
+static const uint16_t QUAD_CONFIG1 = 0x01u << 8;
+static const uint16_t QUAD_CONFIG2 = 0x02u << 8;
+static const uint16_t QUAD_CONFIG3 = 0x03u << 8;
+static const uint16_t QUAD_CONFIG4 = 0x04u << 8;
+static const uint16_t QUAD_CTRL 	 = 0x30u << 8;    //mainly used to set counter to zero
+static const uint16_t QUAD_COUNTER = 0x08u << 8;
 /****************************************************************************
  *   MD quadrature decoder Command
  *****************************************************************************/
-#define QUAD_RESETCNT0 0x01 <<8  // used with CTRL register to reset counter
-#define QUAD_RESETCNT1 0x02 <<8
-#define QUAD_RESETCNT2 0x04 <<8
-#define QUAD_READ	   0x80 <<8
-#define QUAD_WRITE	   ~0x80 <<8 //modification needed
+static const uint16_t QUAD_RESETCNT0 = 0x01u << 8;  // used with CTRL register to reset counter
+static const uint16_t QUAD_RESETCNT1 = 0x02u << 8;
+static const uint16_t QUAD_RESETCNT2 = 0x04u << 8;
+static const uint16_t QUAD_READ	   = 0x80u << 8;
+static const uint16_t QUAD_WRITE	   = ~0x80u << 8; //modification needed
 
 
 

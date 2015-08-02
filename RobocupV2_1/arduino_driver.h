@@ -11,21 +11,21 @@
 #include <stdio.h>
 #include "Robocup_Define.h"
 
-#define	ARDUINO_BAT_MONITOR_1              0xA1 << 8
-#define	ARDUINO_BAT_MONITOR_2              0xA2 << 8
-#define	ARDUINO_GPIO_2              	   0xB2 << 8
-#define	ARDUINO_GPIO_3              	   0xB3 << 8
-#define	ARDUINO_GPIO_4              	   0xB4 << 8
-#define	ARDUINO_GPIO_5              	   0xB5 << 8
-#define	ARDUINO_GPIO_6              	   0xB6 << 8
-#define	ARDUINO_GPIO_7              	   0xB7 << 8
-#define	ARDUINO_GPIO_8              	   0xB8 << 8
-#define	ARDUINO_GPIO_9              	   0xB9 << 8
-#define	ARDUINO_RECALL              	   0xC0 << 8
+static const uint16_t ARDUINO_BAT_MONITOR_1  = 0xA1u << 8;
+static const uint16_t ARDUINO_BAT_MONITOR_2  = 0xA2u << 8;
+static const uint16_t ARDUINO_GPIO_2         = 0xB2u << 8;
+static const uint16_t ARDUINO_GPIO_3         = 0xB3u << 8;
+static const uint16_t ARDUINO_GPIO_4         = 0xB4u << 8;
+static const uint16_t ARDUINO_GPIO_5         = 0xB5u << 8;
+static const uint16_t ARDUINO_GPIO_6         = 0xB6u << 8;
+static const uint16_t ARDUINO_GPIO_7         = 0xB7u << 8;
+static const uint16_t ARDUINO_GPIO_8         = 0xB8u << 8;
+static const uint16_t ARDUINO_GPIO_9         = 0xB9u << 8;
+static const uint16_t ARDUINO_RECALL         = 0xC0u << 8;
 
-#define	ARDUINO_LOW              	       0x00 << 8
-#define	ARDUINO_HIGH              	       0x01 << 8
-#define	ARDUINO_RECALL_MESSAGE             0xEE << 8
+static const uint16_t	ARDUINO_LOW          = 0x00u << 8;
+static const uint16_t	ARDUINO_HIGH         = 0x01u << 8;
+static const uint16_t ARDUINO_RECALL_MESSAGE = 0xEEu << 8;
 
 
 

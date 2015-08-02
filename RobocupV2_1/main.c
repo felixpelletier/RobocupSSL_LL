@@ -105,8 +105,9 @@ Void SetUp(){
     HandleRobot.HandlePid[2].term.Ref = _IQ(0);
     HandleRobot.HandlePid[3].term.Ref = _IQ(0);
 
-    //status = add_device("scia", _SSA, SCI_open, SCI_close, SCI_read, SCI_write, SCI_lseek, SCI_unlink, SCI_rename);
-    //fid = fopen("scia","w");
+    status = add_device("scia", _SSA, SCI_open, SCI_close, SCI_read, SCI_write, SCI_lseek, SCI_unlink, SCI_rename);
+    //fid =
+    fopen("scia","w");
     freopen("scia:", "w", stdout);
     setvbuf(stdout, buff, _IOFBF, 100);
 
@@ -150,6 +151,7 @@ uint16_t pwm3 = 2000;
 bool debugFlag = false;
 //This function is executed every 10 ms
 void Round_Robin(){
+
 #ifdef RELEASE
 	bool newPacket = false;
 	//***Radio Reception***

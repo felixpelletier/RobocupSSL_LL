@@ -28,10 +28,10 @@ typedef enum
 	LEFT
 } DCMotor_DIR;
 
-#define EPWM_TIMER_TBPRD  1500  // Period register
-#define EPWM_BRAKE		  2000
-#define EPWM_MAX_CMPA     1450
-#define EPWM_MIN_CMPA       50
+static const uint16_t EPWM_TIMER_TBPRD = 1500u;  // Period register
+static const uint16_t EPWM_BRAKE	   = 2000u;
+static const uint16_t EPWM_MAX_CMPA    = 1450u;
+static const uint16_t EPWM_MIN_CMPA    = 50u;
 
 /*******************************************************************************
  * User Interface Function
