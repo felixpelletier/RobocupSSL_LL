@@ -44,23 +44,26 @@ typedef _Bool bool_t;
 #include "f2802x_common/include/sci.h"
 #include "f2802x_common/include/sci_io.h"
 
+#define GLOBAL_Q 23  	//global precision
+#include <IQmathLib.h>  //Virtual FPU
 
 /*------------------------------------------------------------------------------------------------
  * 	 Robots constant
  *------------------------------------------------------------------------------------------------*/
-#define WHEEL_DIAMETER 0.064//0.775
-#define RRTIME 0.01		//RoundRobin call time in S
-#define ENCODER_PPR 1020			//encoder pulses
-#define ONE_ENCODER_PPR 0.0009804	// 1/ENCODER_PPR = 1/1020
-#define PI _IQ(3.1415926535897932384626433832795)
+static const _iq WHEEL_DIAMETER = 0.064;//0.775
+static const _iq RRTIME = 0.01;		//RoundRobin call time in S
+static const uint32_t ENCODER_PPR = 1020u;			//encoder pulses
+static const _iq ONE_ENCODER_PPR = 0.0009804;	// 1/ENCODER_PPR = 1/1020
+static const _iq PI = _IQ(3.1415926535897932384626433832795);
 
-#define MIN_SPEED _IQ(0.02)
+static const _iq MIN_SPEED = _IQ(0.02);
 
 /*--------------------------------------------------------------------------------------------------
- * Genral constant
+ * General constant
  *--------------------------------------------------------------------------------------------------*/
 
 #define PLAYER_BUFFER_SIZE 15
+
 /*------------------------------------------------------------------------------------------------
  * 	 IQ math
  *------------------------------------------------------------------------------------------------*/
@@ -69,8 +72,6 @@ typedef _Bool bool_t;
  * 	23 => -256 to 255.999 999 981
  *
  *************************/
-#define GLOBAL_Q 23  	//global precision
-#include <IQmathLib.h>  //Virtual FPU
 void robotParam_init();
 
 

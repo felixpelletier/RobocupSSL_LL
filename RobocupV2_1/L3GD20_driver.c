@@ -8,6 +8,7 @@
 
 #include "CS_demux.h"
 #include "L3GD20_driver.h"
+#include "SPI.h"
 
 /**************************************************************************************************
 * \fn nRFInit()
@@ -57,7 +58,7 @@ uint16_t gyro_readRegister( uint16_t pReg){
 	uint16_t lAnswer = 0;
 	demux_connect_to(HandleGyro.SCpin);
 
-	SPI_write(HandleRobot.HandleSPI, pReg | 0x8000); // Set to read
+	SPI_write_8bits(HandleRobot.HandleSPI, pReg | 0x80); // Set to read with a 1
 	SPI_write(HandleRobot.HandleSPI, 0xFFFF); //dummy data
 	while(SPI_getRxFifoStatus(HandleRobot.HandleSPI) < SPI_FifoStatus_2_Words); //wait for two words (STATUS + REG)
 	SPI_read(HandleRobot.HandleSPI);
@@ -70,8 +71,8 @@ uint16_t gyro_readRegister( uint16_t pReg){
 void gyro_writeRegister(uint16_t pReg, uint16_t pValue){
 	demux_connect_to(HandleGyro.SCpin);
 
-	SPI_write(HandleRobot.HandleSPI, pReg); //put a 0 on the first
-	SPI_write(HandleRobot.HandleSPI, pValue << 8);
+	SPI_write_8bits(HandleRobot.HandleSPI, pReg); //put a 0 on the first
+	SPI_write_8bits(HandleRobot.HandleSPI, pValue);
 	while(SPI_getRxFifoStatus(HandleRobot.HandleSPI) < SPI_FifoStatus_2_Words); //wait for two words (STATUS + REG)
 	SPI_read(HandleRobot.HandleSPI);
 	SPI_read(HandleRobot.HandleSPI);

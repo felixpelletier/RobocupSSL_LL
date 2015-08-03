@@ -8,7 +8,7 @@
 
 #include "CS_demux.h"
 #include "nRF24L01_driver.h"
-
+#include "SPI.h"
 /**************************************************************************************************
 * \fn nRFInit()
 * \brief Initialisation du module nRF24L01
@@ -89,8 +89,8 @@ void nRF_setCE(bool bEnable,GPIO_Handle HandleGPIO)
 uint16_t nRF_ReadRegister(SPI_Handle HandleSPI,GPIO_Handle HandleGPIO,uint16_t Reg){
 	uint16_t answer = 0;
 	demux_connect_to(HandleRF.structCSNPin); //Set csn for spi communication
-	SPI_write(HandleSPI, Reg); //register adress
-	SPI_write(HandleSPI, Reg); //dummy data
+	SPI_write_8bits(HandleSPI, Reg); //register adress
+	SPI_write_8bits(HandleSPI, Reg); //dummy data
 	while(SPI_getRxFifoStatus(HandleSPI) < SPI_FifoStatus_2_Words); //wait for two words (STATUS + REG)
 	HandleRF.Reg[R_STATUS] = SPI_read(HandleSPI);					//read buffer
 	answer = SPI_read(HandleSPI);
@@ -101,8 +101,8 @@ uint16_t nRF_ReadRegister(SPI_Handle HandleSPI,GPIO_Handle HandleGPIO,uint16_t R
 void nRF_WriteRegister (SPI_Handle HandleSPI,GPIO_Handle HandleGPIO,uint16_t Reg,uint16_t value)
 {
 	demux_connect_to(HandleRF.structCSNPin);
-	SPI_write(HandleSPI,W_REGISTER | Reg); //register adress
-	SPI_write(HandleSPI, value << 8);
+	SPI_write_8bits(HandleSPI,W_REGISTER | Reg); //register adress
+	SPI_write_8bits(HandleSPI, value);
 	while(SPI_getRxFifoStatus(HandleSPI) < SPI_FifoStatus_2_Words); //wait for status and junk
 	HandleRF.Reg[R_STATUS] = SPI_read(HandleSPI);
 	HandleRF.Reg[R_JUNK] = SPI_read(HandleSPI);
@@ -123,8 +123,10 @@ void nRF_WriteTXPayload(GPIO_Handle HandleGPIO,SPI_Handle HandleSPI)
 	demux_connect_to(HandleRF.structCSNPin); 	// CE pin LOW
 
 
-	SPI_write(HandleSPI, W_TX_PAYLOAD);
-	for(i=0; i<5; i++){SPI_write(HandleSPI, HandleRF.TXPayload[i]);}	//Write tx to spi
+	SPI_write_8bits(HandleSPI, W_TX_PAYLOAD);
+	for(i=0; i<5; i++){
+		SPI_write_8bits(HandleSPI, HandleRF.TXPayload[i]);
+	}	//Write tx to spi
 	while(SPI_getRxFifoStatus(HandleSPI) < SPI_FifoStatus_1_Word);		//get status
 	HandleRF.Reg[R_STATUS] = SPI_read(HandleSPI);
 	while(SPI_getRxFifoStatus(HandleSPI) < SPI_FifoStatus_2_Words); 	//wait for 2 words and junk them
@@ -195,17 +197,21 @@ void nRF_ReadRXPayload(GPIO_Handle HandleGPIO,SPI_Handle HandleSPI,uint16_t payl
 		uint16_t entireBlock = payloadLength/4;  //read payload by block of 4 bytes
 		uint16_t restBlock = payloadLength%4;    //modulo of an entire block
 
-		SPI_write(HandleSPI, R_RX_PAYLOAD);
+		SPI_write_8bits(HandleSPI, R_RX_PAYLOAD);
 		while(SPI_getRxFifoStatus(HandleSPI) < SPI_FifoStatus_1_Word); //write and receive status byte
 		HandleRF.Reg[R_STATUS] = SPI_read(HandleSPI);
 		for(i = 0; i < entireBlock; ++i){								//iterate over number of block
-			for(j=0; j<4; ++j){SPI_write(HandleSPI, R_RX_PAYLOAD);}		//write dummy
+			for(j=0; j<4; ++j){
+				SPI_write_8bits(HandleSPI, R_RX_PAYLOAD);
+			}		//write dummy
 			for(j=0;j<4;++j){											//receive and store data
 				while(SPI_getRxFifoStatus(HandleSPI) < SPI_FifoStatus_1_Word);
 				HandleRF.RXPayload[j+(4*i)] = SPI_read(HandleSPI);
 			}
 		}
-		for(j=0; j<restBlock; ++j){SPI_write(HandleSPI, R_RX_PAYLOAD);}  //handle modulo of block (1,2 or 3 bytes)
+		for(j=0; j<restBlock; ++j){
+			SPI_write_8bits(HandleSPI, R_RX_PAYLOAD);
+		}  //handle modulo of block (1,2 or 3 bytes)
 		for(i = 0; i < restBlock; ++i){
 			while(SPI_getRxFifoStatus(HandleSPI) < SPI_FifoStatus_1_Word);
 			HandleRF.RXPayload[i+(4*entireBlock)] = SPI_read(HandleSPI);
@@ -228,7 +234,9 @@ void nRF_ReadTXADDR(GPIO_Handle HandleGPIO,SPI_Handle HandleSPI)
 
 	demux_connect_to(HandleRF.structCSNPin);
 
-	for(i=0; i<6; i++){SPI_write(HandleSPI, TX_ADDR); }
+	for(i=0; i<6; i++){
+		SPI_write_8bits(HandleSPI, TX_ADDR);
+	}
 	while(SPI_getRxFifoStatus(HandleSPI) < SPI_FifoStatus_1_Word); //wait??
 	HandleRF.Reg[R_STATUS] = SPI_read(HandleSPI);
 	while(SPI_getRxFifoStatus(HandleSPI) < SPI_FifoStatus_2_Words); //wait??
@@ -248,7 +256,9 @@ void nRF_ReadRXADDR(GPIO_Handle HandleGPIO,SPI_Handle HandleSPI, uint16_t pipe)
 
 	demux_connect_to(HandleRF.structCSNPin);
 
-	for(i=0; i<6; i++){SPI_write(HandleSPI, pipe); }
+	for(i=0; i<6; i++){
+		SPI_write_8bits(HandleSPI, pipe);
+	}
 	while(SPI_getRxFifoStatus(HandleSPI) < SPI_FifoStatus_1_Word); //wait??
 	HandleRF.Reg[R_STATUS] = SPI_read(HandleSPI);
 	while(SPI_getRxFifoStatus(HandleSPI) < SPI_FifoStatus_2_Words); //wait??
@@ -278,8 +288,11 @@ void nRF_WriteTXADDR(SPI_Handle HandleSPI,GPIO_Handle HandleGPIO, uint8_t uiID)
 
 	demux_connect_to(HandleRF.structCSNPin);
 
-	SPI_write(HandleSPI, W_REGISTER | TX_ADDR); //register adress
-	for(i=0; i<4; i++){SPI_write(HandleSPI, 0xE700);}SPI_write(HandleSPI, 0xE000 | (uiID<<8));
+	SPI_write_8bits(HandleSPI, W_REGISTER | TX_ADDR); //register adress
+	for(i=0; i<4; i++){
+		SPI_write_8bits(HandleSPI, 0xE7);
+	}
+	SPI_write_8bits(HandleSPI, 0xE0 | uiID);
 	while(SPI_getRxFifoStatus(HandleSPI) < SPI_FifoStatus_1_Word); //wait
 	HandleRF.Reg[R_STATUS] = SPI_read(HandleSPI);
 	while(SPI_getRxFifoStatus(HandleSPI) < SPI_FifoStatus_2_Words); //wait
@@ -300,8 +313,11 @@ void nRF_WriteRXADDR(SPI_Handle HandleSPI,GPIO_Handle HandleGPIO, uint8_t uiID, 
 
 	demux_connect_to(HandleRF.structCSNPin);
 
-	SPI_write(HandleSPI, W_REGISTER | pipe); //register adress
-	for(i=0; i<4; i++){SPI_write(HandleSPI, 0xE700);}SPI_write(HandleSPI, 0xE000 | (uiID<<8));
+	SPI_write_8bits(HandleSPI, W_REGISTER | pipe); //register adress
+	for(i=0; i<4; i++){
+		SPI_write_8bits(HandleSPI, 0xE7);
+	}
+	SPI_write_8bits(HandleSPI, 0xE0 | uiID);
 	while(SPI_getRxFifoStatus(HandleSPI) < SPI_FifoStatus_1_Word); //wait
 	HandleRF.Reg[R_STATUS] = SPI_read(HandleSPI);
 	while(SPI_getRxFifoStatus(HandleSPI) < SPI_FifoStatus_2_Words); //wait
@@ -344,7 +360,7 @@ void nRF_PowerUp(SPI_Handle HandleSPI,GPIO_Handle HandleGPIO, Bool ans){
 void nRF_FlushRX(SPI_Handle HandleSPI,GPIO_Handle HandleGPIO)
 {
 	demux_connect_to(HandleRF.structCSNPin);
-	SPI_write(HandleSPI, FLUSH_RX);
+	SPI_write_8bits(HandleSPI, FLUSH_RX);
 	while(SPI_getRxFifoStatus(HandleSPI) < SPI_FifoStatus_1_Word); //wait
 	HandleRF.Reg[R_STATUS] = SPI_read(HandleSPI);
 	demux_disconnect();
@@ -359,7 +375,7 @@ void nRF_FlushRX(SPI_Handle HandleSPI,GPIO_Handle HandleGPIO)
 **************************************************************************************************/
 void nRF_FlushTX(SPI_Handle HandleSPI,GPIO_Handle HandleGPIO)
 {
-	SPI_write(HandleSPI, FLUSH_TX);
+	SPI_write_8bits(HandleSPI, FLUSH_TX);
 	while(SPI_getRxFifoStatus(HandleSPI) < SPI_FifoStatus_1_Word); //wait
 	HandleRF.Reg[R_STATUS] = SPI_read(HandleSPI);
 }
