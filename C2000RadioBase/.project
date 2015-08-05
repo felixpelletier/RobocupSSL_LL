@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>RobocupV2_1</name>
+	<name>C2000RadioBase</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -34,12 +34,8 @@
 	</linkedResources>
 	<variableList>
 		<variable>
-			<name>INSTALLROOT_LAUNCHXL_F28027_V100</name>
-			<value>$%7BPROJECT_LOC%7D</value>
-		</variable>
-		<variable>
 			<name>INSTALLROOT_LAUNCHXL_F28027_V1001</name>
-			<value>$%7BPROJECT_LOC%7D</value>
+			<value>$%7BPARENT-1-PROJECT_LOC%7D/driverlib.lib</value>
 		</variable>
 	</variableList>
 </projectDescription>

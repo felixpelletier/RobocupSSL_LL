@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>Robocup_RadioBase_V1.0</name>
+	<name>C2000Robot</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -25,10 +25,21 @@
 		<nature>org.eclipse.cdt.core.ccnature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>driverlib.lib</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/driverlib.lib</locationURI>
+		</link>
+	</linkedResources>
 	<variableList>
 		<variable>
+			<name>INSTALLROOT_LAUNCHXL_F28027_V100</name>
+			<value>$%7BPROJECT_LOC%7D</value>
+		</variable>
+		<variable>
 			<name>INSTALLROOT_LAUNCHXL_F28027_V1001</name>
-			<value>$%7BPARENT-1-PROJECT_LOC%7D/driverlib.lib</value>
+			<value>$%7BPROJECT_LOC%7D</value>
 		</variable>
 	</variableList>
 </projectDescription>
