@@ -103,8 +103,8 @@ uint16_t count=0, res = 15;
 
 Void Round_Robin(){
 
-	nRF_sendPackets(&HandleRobot.HandleUnPacker);
-	flag = Unpacker_parseBuffer(&HandleRobot.HandleUnPacker, &HandleRobot.HandleCB);
+	//flag = Unpacker_parseBuffer(&HandleRobot.HandleUnPacker, &HandleRobot.HandleCB);
+	//nRF_sendPackets(&HandleRobot.HandleUnPacker);
 
 }
 
@@ -184,8 +184,8 @@ Void sci_rx_interupt(){
 	int i;
 	for(i=0;i<2;++i){
 		uint16_t byte = SCI_getData(HandleRobot.HandleSCI);
-		CB_write(&HandleRobot.HandleCB, byte);
-		//System_printf("0x%x", byte);
+		//CB_write(&HandleRobot.HandleCB, byte);
+		System_printf("0x%x", byte);
 	}
 	if(SCI_RxOverflow(HandleRobot.HandleSCI)){
 		SCI_resetRxFifo(HandleRobot.HandleSCI);

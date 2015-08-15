@@ -6,6 +6,7 @@
 
 #define RELEASE   //RELEASE or DEBUG
 #define HARDWARE_TEST
+#define PID_TEST
 
 #include "Robocup_Define.h"
 #include "Serial.h"
@@ -171,7 +172,44 @@ void Round_Robin(){
 
 	/*System_printf("x=%f y=%f theta=%f\r\n",HandleRobot.robotParam.XVelocityCommand.floating
 									  ,HandleRobot.robotParam.YVelocityCommand.floating
-	x								  ,HandleRobot.robotParam.ThetaVelocityCommand.floating);*/
+									  ,HandleRobot.robotParam.ThetaVelocityCommand.floating);*/
+
+#ifdef PID_TEST
+	static uint16_t round_robin_count = 0;
+	_iq command = _IQ(0);
+	if(round_robin_count < 1){
+		command = _IQ(0);
+		System_printf("Four_wheel_in, Four_wheel_out, first_wheel_speed(m/s)\n\r");
+	}
+	else if(round_robin_count < 100)
+		command = _IQ(0);
+	else if(round_robin_count < 600)
+		command = _IQ(0.2);
+	else if(round_robin_count < 1100)
+		command = _IQ(0.4);
+	else if(round_robin_count < 1600)
+		command = _IQ(0.6);
+	else
+		return;
+
+
+	// To send a 45 degrees X==Y. (45 degrees => only two wheels running)
+	fourWheelCtrl_Update(command,
+						 command,
+						 _IQ(0));
+
+	dcMotor_updatePWM(&HandleRobot.HandleMotor[0], _IQint(HandleRobot.HandlePid[0].term.Ref));
+	dcMotor_updatePWM(&HandleRobot.HandleMotor[1], _IQint(HandleRobot.HandlePid[1].term.Ref));
+	dcMotor_updatePWM(&HandleRobot.HandleMotor[2], _IQint(HandleRobot.HandlePid[2].term.Ref));
+	dcMotor_updatePWM(&HandleRobot.HandleMotor[3], _IQint(HandleRobot.HandlePid[3].term.Ref));
+
+	System_printf("%f,%d,%f\n\r",
+			_IQtoF(command),
+			_IQint(HandleRobot.HandlePid[0].term.Ref),
+			_IQtoF(HandleRobot.HandleQuad[0].wheelVelocity[0]));
+	round_robin_count++;
+
+#else
 	//***Cinetic Model math***
 	fourWheelCtrl_Update( _IQ(HandleRobot.robotParam.XVelocityCommand.floating),
 						  _IQ(HandleRobot.robotParam.YVelocityCommand.floating),
@@ -189,8 +227,9 @@ void Round_Robin(){
 	dcMotor_update(&HandleRobot.HandleMotor[1],&HandleRobot.HandlePid[1]);
 	dcMotor_update(&HandleRobot.HandleMotor[2],&HandleRobot.HandlePid[2]);
 	dcMotor_update(&HandleRobot.HandleMotor[3],&HandleRobot.HandlePid[3]);
+#endif // PID_TEST
 
-#endif
+#endif // RELEASH
 
 #ifdef DEBUG
 
