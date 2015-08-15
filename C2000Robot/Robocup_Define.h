@@ -50,10 +50,10 @@ typedef _Bool bool_t;
 /*------------------------------------------------------------------------------------------------
  * 	 Robots constant
  *------------------------------------------------------------------------------------------------*/
-static const _iq WHEEL_DIAMETER = 0.064;//0.775
-static const _iq RRTIME = 0.01;		//RoundRobin call time in S
+static const _iq WHEEL_DIAMETER = _IQ(0.064);//0.775
+static const _iq RRTIME = _IQ(0.01);		//RoundRobin call time in S
 static const uint32_t ENCODER_PPR = 1020u;			//encoder pulses
-static const _iq ONE_ENCODER_PPR = 0.0009804;	// 1/ENCODER_PPR = 1/1020
+static const _iq ONE_ENCODER_PPR = _IQ(0.0009804);	// 1/ENCODER_PPR = 1/1020
 static const _iq PI = _IQ(3.1415926535897932384626433832795);
 
 static const _iq MIN_SPEED = _IQ(0.02);

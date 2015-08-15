@@ -183,12 +183,12 @@ void Round_Robin(){
 	}
 	else if(round_robin_count < 100)
 		command = _IQ(0);
-	else if(round_robin_count < 600)
-		command = _IQ(0.2);
 	else if(round_robin_count < 1100)
-		command = _IQ(0.4);
+		command = _IQ(0.5);
 	else if(round_robin_count < 1600)
-		command = _IQ(0.6);
+		command = _IQ(1);
+	else if(round_robin_count < 1601)
+		command = _IQ(0);
 	else
 		return;
 
@@ -300,10 +300,10 @@ void robotParam_init(){
 	_iq buf2 = 0;
 	_iq op = 0;
 
-	HandleRobot.robotParam.wheelRadius = _IQ(WHEEL_DIAMETER);
-	HandleRobot.robotParam.roundRobinTime = _IQ(RRTIME);
+	HandleRobot.robotParam.wheelRadius = WHEEL_DIAMETER;
+	HandleRobot.robotParam.roundRobinTime = RRTIME;
 	HandleRobot.robotParam.encoderPPR = ENCODER_PPR;
-	op = _IQ(ONE_ENCODER_PPR);
+	op = ONE_ENCODER_PPR;
 	buf = _IQdiv(HandleRobot.robotParam.wheelRadius, HandleRobot.robotParam.roundRobinTime);
 	buf2 = _IQmpy(buf, PI);
 	HandleRobot.robotParam.speedFactor = _IQmpy(buf2, op);
