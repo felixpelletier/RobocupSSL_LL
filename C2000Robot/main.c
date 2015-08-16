@@ -184,14 +184,13 @@ void Round_Robin(){
 	else if(round_robin_count < 100)
 		command = _IQ(0);
 	else if(round_robin_count < 1100)
-		command = _IQ(0.5);
-	else if(round_robin_count < 1600)
 		command = _IQ(1);
-	else if(round_robin_count < 1601)
-		command = _IQ(0);
-	else
+	else if(round_robin_count < 1600)
+		command = _IQ(2);
+	else{
+		dcMotor_setPWM(&HandleRobot.HandleMotor[0], EPWM_BRAKE);
 		return;
-
+	}
 
 	// To send a 45 degrees X==Y. (45 degrees => only two wheels running)
 	fourWheelCtrl_Update(command,
@@ -199,13 +198,10 @@ void Round_Robin(){
 						 _IQ(0));
 
 	dcMotor_updatePWM(&HandleRobot.HandleMotor[0], _IQint(HandleRobot.HandlePid[0].term.Ref));
-	dcMotor_updatePWM(&HandleRobot.HandleMotor[1], _IQint(HandleRobot.HandlePid[1].term.Ref));
-	dcMotor_updatePWM(&HandleRobot.HandleMotor[2], _IQint(HandleRobot.HandlePid[2].term.Ref));
-	dcMotor_updatePWM(&HandleRobot.HandleMotor[3], _IQint(HandleRobot.HandlePid[3].term.Ref));
 
-	System_printf("%f,%d,%f\n\r",
+	System_printf("%f,%f,%f\n\r",
 			_IQtoF(command),
-			_IQint(HandleRobot.HandlePid[0].term.Ref),
+			_IQtoF(HandleRobot.HandlePid[0].term.Ref),
 			_IQtoF(HandleRobot.HandleQuad[0].wheelVelocity[0]));
 	round_robin_count++;
 
