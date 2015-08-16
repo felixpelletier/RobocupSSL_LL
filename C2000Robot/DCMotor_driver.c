@@ -121,7 +121,8 @@ DCMotor_Handle dcMotor_init(DCMotor_pwm_e pPwmId,GPIO_Number_e pDirectionPin){
 
 
 void dcMotor_updatePWM(DCMotor_Handle *pMotor, uint16_t pPidValue){
-	uint16_t lNewPwm = dcMotor_getPWM(pMotor)-pPidValue;  // PWM adjust
+	uint16_t lNewPwm = EPWM_TIMER_TBPRD - pPidValue;
+	//uint16_t lNewPwm = dcMotor_getPWM(pMotor)-pPidValue;  // PWM adjust using the getPWM, which return the brake period(2000)
 
 	if(lNewPwm > EPWM_MAX_CMPA){  						//saturation
 		lNewPwm = EPWM_MAX_CMPA;

@@ -96,10 +96,10 @@ Void SetUp(){
     HandleRobot.HandleMotor[2] = dcMotor_init(PWM_2A, GPIO_Number_32);
     HandleRobot.HandleMotor[3] = dcMotor_init(PWM_3A, GPIO_Number_33);
 
-    HandleRobot.HandlePid[0] = pid_init(PID_P, PID_I, PID_D, _IQ(250), _IQ(-250));
-    HandleRobot.HandlePid[1] = pid_init(PID_P, PID_I, PID_D, _IQ(250), _IQ(-250));
-    HandleRobot.HandlePid[2] = pid_init(PID_P, PID_I, PID_D, _IQ(250), _IQ(-250));
-    HandleRobot.HandlePid[3] = pid_init(PID_P, PID_I, PID_D, _IQ(250), _IQ(-250));
+    HandleRobot.HandlePid[0] = pid_init(PID_P, PID_I, PID_D, _IQ(EPWM_TIMER_TBPRD), _IQ(0));
+    HandleRobot.HandlePid[1] = pid_init(PID_P, PID_I, PID_D, _IQ(EPWM_TIMER_TBPRD), _IQ(0));
+    HandleRobot.HandlePid[2] = pid_init(PID_P, PID_I, PID_D, _IQ(EPWM_TIMER_TBPRD), _IQ(0));
+    HandleRobot.HandlePid[3] = pid_init(PID_P, PID_I, PID_D, _IQ(EPWM_TIMER_TBPRD), _IQ(0));
 
     HandleRobot.HandlePid[0].term.Ref = _IQ(0);
     HandleRobot.HandlePid[1].term.Ref = _IQ(0);
@@ -179,7 +179,8 @@ void Round_Robin(){
 	_iq command = _IQ(0);
 	if(round_robin_count < 1){
 		command = _IQ(0);
-		System_printf("Four_wheel_in, Four_wheel_out, first_wheel_speed(m/s)\n\r");
+		System_printf("max motor %d", dcMotor_getPWM(&HandleRobot.HandleMotor[2]));
+		System_printf("Four_wheel_in, Four_wheel_out * 1000, first_wheel_speed(m/s)\n\r");
 	}
 	else if(round_robin_count < 100)
 		command = _IQ(0);
@@ -188,7 +189,7 @@ void Round_Robin(){
 	else if(round_robin_count < 1600)
 		command = _IQ(2);
 	else{
-		dcMotor_setPWM(&HandleRobot.HandleMotor[0], EPWM_BRAKE);
+		dcMotor_setPWM(&HandleRobot.HandleMotor[2], EPWM_BRAKE);
 		return;
 	}
 
@@ -196,13 +197,14 @@ void Round_Robin(){
 	fourWheelCtrl_Update(command,
 						 command,
 						 _IQ(0));
+	uint16_t consigne = _IQint(HandleRobot.HandlePid[0].term.Ref) *  100;
 
-	dcMotor_updatePWM(&HandleRobot.HandleMotor[0], _IQint(HandleRobot.HandlePid[0].term.Ref));
+	dcMotor_updatePWM(&HandleRobot.HandleMotor[2], consigne);
 
-	System_printf("%f,%f,%f\n\r",
+	System_printf("%f,%d,%f\n\r",
 			_IQtoF(command),
-			_IQtoF(HandleRobot.HandlePid[0].term.Ref),
-			_IQtoF(HandleRobot.HandleQuad[0].wheelVelocity[0]));
+			consigne,
+			_IQtoF(HandleRobot.HandleQuad[1].wheelVelocity[0]));
 	round_robin_count++;
 
 #else

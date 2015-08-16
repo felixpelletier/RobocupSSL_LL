@@ -33,7 +33,7 @@ PID_Handle pid_init(_iq pKp, _iq pKi, _iq pKd, _iq pUmax, _iq pUmin){
 	lPid.data.ui = _IQ(0);
 	lPid.data.up = _IQ(0);
 	lPid.data.v1 = _IQ(0);
-	lPid.data.w1 = _IQ(0);
+	lPid.data.w1 = _IQ(0); // I weight, when no saturation occur, the w1 = 1.0
 
 	return lPid;
 }
@@ -48,11 +48,12 @@ _iq pid_update(PID_Handle *pPid, _iq pFbk){
 	pPid->data.up = _IQmpy(pPid->param.Kr, pPid->term.Ref) - pPid->term.Fbk;
 	/* integral term */
 	// Ki * (w1 * (Ref - Fbk)) + i1
+	// w1 = 1 when no saturation occur
 	pPid->data.ui = _IQmpy(pPid->param.Ki, _IQmpy(pPid->data.w1, (pPid->term.Ref - pPid->term.Fbk))) + pPid->data.i1;
 	pPid->data.i1 = pPid->data.ui;
 
 	/* derivative term */
-	// Kd * (c1 * (Ref * Km,  - Fbk-) ) - d2
+	// Kd * (c1 * (Ref * Km  - Fbk) ) - d2
 	pPid->data.d2 = _IQmpy(pPid->param.Kd,
 						_IQmpy(pPid->term.c1, (_IQmpy(pPid->term.Ref, pPid->param.Km), - pPid->term.Fbk))) - pPid->data.d2;
 	pPid->data.ud = pPid->data.d2 + pPid->data.d1;
