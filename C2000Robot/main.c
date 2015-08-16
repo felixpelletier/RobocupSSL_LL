@@ -156,14 +156,14 @@ void Round_Robin(){
 #ifdef RELEASE
 	bool newPacket = false;
 	//***Radio Reception***
-	newPacket = nRF_Listen(HandleRobot.HandleGPIO,HandleRobot.HandleSPI);
+	/*newPacket = nRF_Listen(HandleRobot.HandleGPIO,HandleRobot.HandleSPI);
 
 	//***Unpack***
 	if(newPacket){
 		System_printf("new packet\r\n");
 		debugFlag = true;
 		unpackBuffer(HandleRF.RXPayload);
-	}
+	}*/
 
 
 	//***Captor read***  (Read captor first for stability)
@@ -177,35 +177,63 @@ void Round_Robin(){
 #ifdef PID_TEST
 	static uint16_t round_robin_count = 0;
 	_iq command = _IQ(0);
-	if(round_robin_count < 1){
-		command = _IQ(0);
-		System_printf("max motor %d", dcMotor_getPWM(&HandleRobot.HandleMotor[2]));
-		System_printf("Four_wheel_in, Four_wheel_out * 1000, first_wheel_speed(m/s)\n\r");
-	}
-	else if(round_robin_count < 100)
+	if(round_robin_count < 100)
 		command = _IQ(0);
 	else if(round_robin_count < 1100)
 		command = _IQ(1);
 	else if(round_robin_count < 1600)
 		command = _IQ(2);
 	else{
-		dcMotor_setPWM(&HandleRobot.HandleMotor[2], EPWM_BRAKE);
+		command = _IQ(0);
+		dcMotor_setPWM(&HandleRobot.HandleMotor[0], EPWM_BRAKE);
 		return;
 	}
 
 	// To send a 45 degrees X==Y. (45 degrees => only two wheels running)
-	fourWheelCtrl_Update(command,
-						 command,
-						 _IQ(0));
-	uint16_t consigne = _IQint(HandleRobot.HandlePid[0].term.Ref) *  100;
+	fourWheelCtrl_Update(_IQtoF(command),
+						 _IQtoF(command),
+						 0.0);
 
-	dcMotor_updatePWM(&HandleRobot.HandleMotor[2], consigne);
+	if(false){// open loop
+		if(round_robin_count < 1){
+			System_printf("max motor %d\r\n", dcMotor_getPWM(&HandleRobot.HandleMotor[2]));
+			System_printf("Four_wheel_in, Four_wheel_out * 1000, first_wheel_speed(m/s)\n\r");
+		}
 
-	System_printf("%f,%d,%f\n\r",
-			_IQtoF(command),
-			consigne,
-			_IQtoF(HandleRobot.HandleQuad[1].wheelVelocity[0]));
+		uint16_t consigne = _IQint(HandleRobot.HandlePid[0].term.Ref) *  100;
+
+		dcMotor_updatePWM(&HandleRobot.HandleMotor[0], consigne);
+
+		System_printf("%f,%d,%f\n\r",
+				_IQtoF(command),
+				consigne,
+				_IQtoF(HandleRobot.HandleQuad[1].wheelVelocity[0]));
+	}
+	else{//close loop
+		if(round_robin_count < 1){
+			System_printf("P%4.f I%4.f D%4.f\r\n", _IQtoF(PID_P)
+												 , _IQtoF(PID_I)
+												 , _IQtoF(PID_D));
+
+			System_flush();
+			System_printf("Four_wheel_in, Four_wheel_out(consigne), error, PID_out(command), first_wheel_speed(m/s)\n\r");
+			System_flush();
+		}
+
+		pid_update(&HandleRobot.HandlePid[0], _IQabs(HandleRobot.HandleQuad[0].wheelVelocity[0]));
+		dcMotor_update(&HandleRobot.HandleMotor[0], &HandleRobot.HandlePid[0]);
+
+		System_printf("%f,%f,%f,%f,%f\n\r",
+				_IQtoF(command),									// Command to four_wheel
+				_IQtoF(HandleRobot.HandlePid[0].term.Ref),			// Consign from four_wheel
+				_IQtoF(HandleRobot.HandlePid[0].term.Ref - HandleRobot.HandlePid[0].term.Fbk), // Error from pid
+				_IQtoF(HandleRobot.HandlePid[0].term.Out),			// Command from pid
+				_IQtoF(HandleRobot.HandleQuad[0].wheelVelocity[0])  // Wheel speed
+		);
+	}
 	round_robin_count++;
+
+
 
 #else
 	//***Cinetic Model math***

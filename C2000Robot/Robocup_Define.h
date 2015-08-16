@@ -44,7 +44,9 @@ typedef _Bool bool_t;
 #include "f2802x_common/include/sci.h"
 #include "f2802x_common/include/sci_io.h"
 
-#define GLOBAL_Q 23  	//global precision
+//#define GLOBAL_Q 23  	//global precision // limit to 125.0 max
+
+#define GLOBAL_Q 18  	//global precision
 #include <IQmathLib.h>  //Virtual FPU
 
 /*------------------------------------------------------------------------------------------------

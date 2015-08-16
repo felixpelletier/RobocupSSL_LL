@@ -14,6 +14,6 @@
 #include "DCMotor_driver.h"
 
 void fourWheelCtrl_Init();
-void fourWheelCtrl_Update( _iq v, _iq teta, _iq w);
+void fourWheelCtrl_Update(float pX, float pY, float pTheta);
 
 #endif /* FOUR_WHEEL_CTRL_H_ */
