@@ -61,10 +61,10 @@ _iq pid_update(PID_Handle *pPid, _iq pFbk){
 
 	/* control output */
 	// v1 = Kp * (up + ui + ud)
-	pPid->data.v1 = _IQmpy(pPid->param.Kp, (pPid->data.up + pPid->data.ui + pPid->data.ud));
+	pPid->data.v1 = _IQmpy(pPid->param.Kp, pPid->data.up) + pPid->data.ui + pPid->data.ud; // previously kp ( up + ui + ud)
 	// out = Kp * (up + ui + ud)
 	pPid->term.Out = _IQsat(pPid->data.v1, pPid->param.Umax, pPid->param.Umin);
-	pPid->data.w1 = (pPid->term.Out == pPid->data.v1) ? _IQ(1.0) : _IQ(0.0);
+	//pPid->data.w1 = (pPid->term.Out == pPid->data.v1) ? _IQ(1.0) : _IQ(1.0);
 
 	return pPid->term.Out;
 }
@@ -76,5 +76,5 @@ void pid_set(PID_Handle *pPid,_iq pKp, _iq pKi, _iq pKd){
 }
 
 void pid_display(PID_Handle *pPid){
-	System_printf("pid =%f \n\r",_IQtoF(pPid->term.Out));
+	System_printf("pid =%f error=%f\n\r",_IQtoF(pPid->term.Out), _IQtoF(pPid->term.Ref - pPid->term.Fbk));
 }

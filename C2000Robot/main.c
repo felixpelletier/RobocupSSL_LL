@@ -5,8 +5,8 @@
 //=========================Includes============================//
 
 #define RELEASE   //RELEASE or DEBUG
-#define HARDWARE_TEST
-#define PID_TEST
+//#define HARDWARE_TEST
+//#define PID_TEST
 
 #include "Robocup_Define.h"
 #include "Serial.h"
@@ -156,14 +156,14 @@ void Round_Robin(){
 #ifdef RELEASE
 	bool newPacket = false;
 	//***Radio Reception***
-	/*newPacket = nRF_Listen(HandleRobot.HandleGPIO,HandleRobot.HandleSPI);
+	newPacket = nRF_Listen(HandleRobot.HandleGPIO,HandleRobot.HandleSPI);
 
 	//***Unpack***
 	if(newPacket){
 		System_printf("new packet\r\n");
 		debugFlag = true;
 		unpackBuffer(HandleRF.RXPayload);
-	}*/
+	}
 
 
 	//***Captor read***  (Read captor first for stability)
@@ -179,13 +179,16 @@ void Round_Robin(){
 	_iq command = _IQ(0);
 	if(round_robin_count < 100)
 		command = _IQ(0);
-	else if(round_robin_count < 1100)
-		command = _IQ(1);
-	else if(round_robin_count < 1600)
-		command = _IQ(2);
+	else if(round_robin_count < 250 + 100)
+		command = _IQ(0.43);
+	else if(round_robin_count < 500 + 100)
+		command = _IQ(0.66);
+	else if(round_robin_count < 750 + 100)
+		command = _IQ(1.0);
 	else{
 		command = _IQ(0);
 		dcMotor_setPWM(&HandleRobot.HandleMotor[0], EPWM_BRAKE);
+		dcMotor_setPWM(&HandleRobot.HandleMotor[2], EPWM_BRAKE);
 		return;
 	}
 
@@ -196,18 +199,19 @@ void Round_Robin(){
 
 	if(false){// open loop
 		if(round_robin_count < 1){
-			System_printf("max motor %d\r\n", dcMotor_getPWM(&HandleRobot.HandleMotor[2]));
+			System_printf("max motor %d\r\n", dcMotor_getPWM(&HandleRobot.HandleMotor[0]));
 			System_printf("Four_wheel_in, Four_wheel_out * 1000, first_wheel_speed(m/s)\n\r");
 		}
 
-		uint16_t consigne = _IQint(HandleRobot.HandlePid[0].term.Ref) *  100;
+		float consigne = _IQtoF(command) *  1500.0;
 
-		dcMotor_updatePWM(&HandleRobot.HandleMotor[0], consigne);
+		dcMotor_updatePWM(&HandleRobot.HandleMotor[0], _IQint(_IQ(consigne)));
+		dcMotor_updatePWM(&HandleRobot.HandleMotor[2], _IQint(_IQ(consigne)));
 
-		System_printf("%f,%d,%f\n\r",
+		System_printf("%f,%f,%f\n\r",
 				_IQtoF(command),
 				consigne,
-				_IQtoF(HandleRobot.HandleQuad[1].wheelVelocity[0]));
+				_IQtoF(_IQabs(HandleRobot.HandleQuad[0].wheelVelocity[0])));
 	}
 	else{//close loop
 		if(round_robin_count < 1){
@@ -221,14 +225,16 @@ void Round_Robin(){
 		}
 
 		pid_update(&HandleRobot.HandlePid[0], _IQabs(HandleRobot.HandleQuad[0].wheelVelocity[0]));
+		pid_update(&HandleRobot.HandlePid[2], _IQabs(HandleRobot.HandleQuad[1].wheelVelocity[0]));
 		dcMotor_update(&HandleRobot.HandleMotor[0], &HandleRobot.HandlePid[0]);
+		dcMotor_update(&HandleRobot.HandleMotor[2], &HandleRobot.HandlePid[2]);
 
 		System_printf("%f,%f,%f,%f,%f\n\r",
-				_IQtoF(command),									// Command to four_wheel
-				_IQtoF(HandleRobot.HandlePid[0].term.Ref),			// Consign from four_wheel
+				_IQtoF(command),											// Command to four_wheel
+				_IQtoF(HandleRobot.HandlePid[0].term.Ref),					// Consign from four_wheel
 				_IQtoF(HandleRobot.HandlePid[0].term.Ref - HandleRobot.HandlePid[0].term.Fbk), // Error from pid
-				_IQtoF(HandleRobot.HandlePid[0].term.Out),			// Command from pid
-				_IQtoF(HandleRobot.HandleQuad[0].wheelVelocity[0])  // Wheel speed
+				_IQtoF(HandleRobot.HandlePid[0].term.Out),					// Command from pid
+				_IQtoF(_IQabs(HandleRobot.HandleQuad[0].wheelVelocity[0]))  // Wheel speed
 		);
 	}
 	round_robin_count++;
@@ -237,9 +243,9 @@ void Round_Robin(){
 
 #else
 	//***Cinetic Model math***
-	fourWheelCtrl_Update( _IQ(HandleRobot.robotParam.XVelocityCommand.floating),
-						  _IQ(HandleRobot.robotParam.YVelocityCommand.floating),
-						  _IQ(HandleRobot.robotParam.ThetaVelocityCommand.floating));
+	fourWheelCtrl_Update(HandleRobot.robotParam.XVelocityCommand.floating,
+						 HandleRobot.robotParam.YVelocityCommand.floating,
+						 HandleRobot.robotParam.ThetaVelocityCommand.floating);
 
 
 	//***PID maths***
@@ -247,6 +253,8 @@ void Round_Robin(){
 	pid_update(&HandleRobot.HandlePid[1], _IQabs(HandleRobot.HandleQuad[0].wheelVelocity[1]));
 	pid_update(&HandleRobot.HandlePid[2], _IQabs(HandleRobot.HandleQuad[1].wheelVelocity[0]));
 	pid_update(&HandleRobot.HandlePid[3], _IQabs(HandleRobot.HandleQuad[1].wheelVelocity[1]));
+
+	pid_display(&HandleRobot.HandlePid[0]);
 
 	//***Actuator update***
 	dcMotor_update(&HandleRobot.HandleMotor[0],&HandleRobot.HandlePid[0]);

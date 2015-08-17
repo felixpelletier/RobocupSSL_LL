@@ -46,7 +46,7 @@ typedef _Bool bool_t;
 
 //#define GLOBAL_Q 23  	//global precision // limit to 125.0 max
 
-#define GLOBAL_Q 18  	//global precision
+#define GLOBAL_Q 17  	//global precision
 #include <IQmathLib.h>  //Virtual FPU
 
 /*------------------------------------------------------------------------------------------------
@@ -182,8 +182,8 @@ typedef struct DCMotor_Handle {
  * 								PID
  ****************************************************************************/
 
-#define PID_P _IQ(13)
-#define PID_I _IQ(0)
+#define PID_P _IQ(3600)
+#define PID_I _IQ(31.2646)
 //#define PID_I _IQ(0.005)
 #define PID_D _IQ(0.000)
 
