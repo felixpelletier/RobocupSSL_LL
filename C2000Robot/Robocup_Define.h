@@ -47,6 +47,10 @@ typedef _Bool bool_t;
 #define GLOBAL_Q 23  	//global precision
 #include <IQmathLib.h>  //Virtual FPU
 
+
+
+#define BETA // BETA, comment for alpha
+
 /*------------------------------------------------------------------------------------------------
  * 	 Robots constant
  *------------------------------------------------------------------------------------------------*/

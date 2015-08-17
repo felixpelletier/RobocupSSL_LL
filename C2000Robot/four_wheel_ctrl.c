@@ -31,22 +31,33 @@ void fourWheelCtrl_Update( _iq pX, _iq pY, _iq pTheta){
 	// dephasage = 315 degrees = 5.4977825 radians
 	_iq v3 = _IQmpy(magnitude, _IQsin(angle + _IQ(5.4977825)));
 
+#ifdef BETA
+	DCMotor_DIR dir_right_alpha = LEFT;
+	DCMotor_DIR dir_left_alpha = RIGHT;
+	HandleRobot.HandlePid[0].term.Ref = v2;// + pTheta;
+	HandleRobot.HandlePid[1].term.Ref = v1;// + pTheta;
+	HandleRobot.HandlePid[2].term.Ref = v0;// + pTheta;
+	HandleRobot.HandlePid[3].term.Ref = v3;// + pTheta;
+#else // Alpha
+	DCMotor_DIR dir_right_alpha = RIGHT;
+	DCMotor_DIR dir_left_alpha = LEFT;
 	HandleRobot.HandlePid[0].term.Ref = v2;// + pTheta;
 	HandleRobot.HandlePid[1].term.Ref = v3;// + pTheta;
 	HandleRobot.HandlePid[2].term.Ref = v0;// + pTheta;
 	HandleRobot.HandlePid[3].term.Ref = v1;// + pTheta;
+#endif // BETA
 
-	if(_IQtoF(HandleRobot.HandlePid[0].term.Ref) < 0 ){dcMotor_setDirection(&HandleRobot.HandleMotor[0],RIGHT);}
-	else{dcMotor_setDirection(&HandleRobot.HandleMotor[0],LEFT);}
+	if(_IQtoF(HandleRobot.HandlePid[0].term.Ref) < 0 ){dcMotor_setDirection(&HandleRobot.HandleMotor[0],dir_right_alpha);}
+	else{dcMotor_setDirection(&HandleRobot.HandleMotor[0],dir_left_alpha);}
 
-	if(_IQtoF(HandleRobot.HandlePid[1].term.Ref) < 0 ){dcMotor_setDirection(&HandleRobot.HandleMotor[1],RIGHT);}
-	else{dcMotor_setDirection(&HandleRobot.HandleMotor[1],LEFT);}
+	if(_IQtoF(HandleRobot.HandlePid[1].term.Ref) < 0 ){dcMotor_setDirection(&HandleRobot.HandleMotor[1],dir_right_alpha);}
+	else{dcMotor_setDirection(&HandleRobot.HandleMotor[1],dir_left_alpha);}
 
-	if(_IQtoF(HandleRobot.HandlePid[2].term.Ref) < 0 ){dcMotor_setDirection(&HandleRobot.HandleMotor[2],RIGHT);}
-	else{dcMotor_setDirection(&HandleRobot.HandleMotor[2],LEFT);}
+	if(_IQtoF(HandleRobot.HandlePid[2].term.Ref) < 0 ){dcMotor_setDirection(&HandleRobot.HandleMotor[2],dir_right_alpha);}
+	else{dcMotor_setDirection(&HandleRobot.HandleMotor[2],dir_left_alpha);}
 
-	if(_IQtoF(HandleRobot.HandlePid[3].term.Ref) < 0 ){dcMotor_setDirection(&HandleRobot.HandleMotor[3],RIGHT);}
-	else{dcMotor_setDirection(&HandleRobot.HandleMotor[3],LEFT);}
+	if(_IQtoF(HandleRobot.HandlePid[3].term.Ref) < 0 ){dcMotor_setDirection(&HandleRobot.HandleMotor[3],dir_right_alpha);}
+	else{dcMotor_setDirection(&HandleRobot.HandleMotor[3],dir_left_alpha);}
 
 	HandleRobot.HandlePid[0].term.Ref=_IQabs(HandleRobot.HandlePid[0].term.Ref);
 	HandleRobot.HandlePid[1].term.Ref=_IQabs(HandleRobot.HandlePid[1].term.Ref);

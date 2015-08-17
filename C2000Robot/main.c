@@ -7,6 +7,7 @@
 #define RELEASE   //RELEASE or DEBUG
 #define HARDWARE_TEST
 
+
 #include "Robocup_Define.h"
 #include "Serial.h"
 #include "SPI.h"
@@ -116,6 +117,17 @@ Void SetUp(){
     test_is_Wheel_System_Working_Well();
     test_is_All_Encoder_Are_Matched_With_Wheels();
     test_is_Directions_Ok();
+
+    /*while(true){
+    	unsigned int i,j;
+    	for(i = 0; i < 4; i++){
+    	    System_printf("Test moteur %d\r\n", i);
+           	System_flush();
+           	for(j = 0; j < 10; j++)
+           		test_is_Wheel_Direction_Left(i);
+
+    	}
+    }*/
 #endif
 
     dcMotor_setPWM(&HandleRobot.HandleMotor[0],EPWM_BRAKE);
