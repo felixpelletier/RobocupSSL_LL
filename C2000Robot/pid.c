@@ -33,7 +33,7 @@ PID_Handle pid_init(_iq pKp, _iq pKi, _iq pKd, _iq pUmax, _iq pUmin){
 	lPid.data.ui = _IQ(0);
 	lPid.data.up = _IQ(0);
 	lPid.data.v1 = _IQ(0);
-	lPid.data.w1 = _IQ(0); // I weight, when no saturation occur, the w1 = 1.0
+	lPid.data.w1 = _IQ(1.0); // I weight, when no saturation occur, the w1 = 1.0
 
 	return lPid;
 }

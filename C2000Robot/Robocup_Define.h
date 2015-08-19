@@ -49,15 +49,33 @@ typedef _Bool bool_t;
 #define GLOBAL_Q 17  	//global precision
 #include <IQmathLib.h>  //Virtual FPU
 
+#define BETA
+
 /*------------------------------------------------------------------------------------------------
  * 	 Robots constant
  *------------------------------------------------------------------------------------------------*/
+#ifdef BETA
+
+#define PID_P _IQ(3600)// 74.21
+#define PID_I _IQ(31.2646) // 1134
+#define PID_D _IQ(0.000)
+
+static const _iq WHEEL_DIAMETER = _IQ(0.025);//5 cm, but gear divide by two
+#else // Alpha
+
+#define PID_P _IQ(3600)
+#define PID_I _IQ(31.2646)
+#define PID_D _IQ(0.000)
+
+
 static const _iq WHEEL_DIAMETER = _IQ(0.064);//0.775
+#endif // BETA
+
+
 static const _iq RRTIME = _IQ(0.01);		//RoundRobin call time in S
 static const uint32_t ENCODER_PPR = 1020u;			//encoder pulses
 static const _iq ONE_ENCODER_PPR = _IQ(0.0009804);	// 1/ENCODER_PPR = 1/1020
 static const _iq PI = _IQ(3.1415926535897932384626433832795);
-
 static const _iq MIN_SPEED = _IQ(0.02);
 
 /*--------------------------------------------------------------------------------------------------
@@ -182,10 +200,6 @@ typedef struct DCMotor_Handle {
  * 								PID
  ****************************************************************************/
 
-#define PID_P _IQ(3600)
-#define PID_I _IQ(31.2646)
-//#define PID_I _IQ(0.005)
-#define PID_D _IQ(0.000)
 
 typedef struct {
 		_iq Ref; // Input: reference set-point
