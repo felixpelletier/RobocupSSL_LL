@@ -5,8 +5,8 @@
 //=========================Includes============================//
 
 #define RELEASE   //RELEASE or DEBUG
-//#define HARDWARE_TEST
-#define PID_TEST
+#define HARDWARE_TEST
+//#define PID_TEST
 #define OPEN_LOOP
 
 #include "Robocup_Define.h"
@@ -183,18 +183,20 @@ void Round_Robin(){
 #ifdef PID_TEST
 	static uint16_t round_robin_count = 0;
 	_iq command = _IQ(0);
-	if(round_robin_count < 100)
-		command = _IQ(0.1);
-	else if(round_robin_count < 250 + 100)
-		command = _IQ(0.1);
-	else if(round_robin_count < 500 + 100)
+	if(round_robin_count < 200)
+		command = _IQ(0.0);
+	else if(round_robin_count < 100 + 200)
 		command = _IQ(0.4);
-	else if(round_robin_count < 750 + 100)
-		command = _IQ(0.6);
+	else if(round_robin_count < 200 + 200)
+		command = _IQ(0.4);
+	else if(round_robin_count < 300 + 200)
+		command = _IQ(0.4);
 	else{
 		command = _IQ(0);
 		dcMotor_setPWM(&HandleRobot.HandleMotor[0], EPWM_BRAKE);
+		dcMotor_setPWM(&HandleRobot.HandleMotor[1], EPWM_BRAKE);
 		dcMotor_setPWM(&HandleRobot.HandleMotor[2], EPWM_BRAKE);
+		dcMotor_setPWM(&HandleRobot.HandleMotor[3], EPWM_BRAKE);
 		return;
 	}
 
@@ -206,7 +208,7 @@ void Round_Robin(){
 
 
 #ifdef OPEN_LOOP// open loop
-		if(round_robin_count < 1){
+		if(round_robin_count < 2){
 			System_printf("max motor %d\r\n", dcMotor_getPWM(&HandleRobot.HandleMotor[1]));
 			System_printf("Four_wheel_in, Four_wheel_out * 1000, first_wheel_speed(m/s)\n\r");
 		}
@@ -214,14 +216,16 @@ void Round_Robin(){
 		float consigne = _IQtoF(command) *  1500.0;
 
 		dcMotor_updatePWM(&HandleRobot.HandleMotor[0], _IQint(_IQ(consigne)));
+		dcMotor_updatePWM(&HandleRobot.HandleMotor[1], _IQint(_IQ(0)));
 		dcMotor_updatePWM(&HandleRobot.HandleMotor[2], _IQint(_IQ(consigne)));
+		dcMotor_updatePWM(&HandleRobot.HandleMotor[3], _IQint(_IQ(0)));
 
 		System_printf("%f,%f,%f\n\r",
 				_IQtoF(command),
 				consigne,
-				_IQtoF(_IQabs(HandleRobot.HandleQuad[0].wheelVelocity[0])));
+				_IQtoF(_IQabs(HandleRobot.HandleQuad[1].wheelVelocity[0])));
 #else //close loop
-		if(round_robin_count < 1){
+		if(round_robin_count < 2){
 			System_printf("P%4.f I%4.f D%4.f\r\n", _IQtoF(PID_P)
 												 , _IQtoF(PID_I)
 												 , _IQtoF(PID_D));

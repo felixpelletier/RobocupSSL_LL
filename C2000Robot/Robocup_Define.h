@@ -49,15 +49,15 @@ typedef _Bool bool_t;
 #define GLOBAL_Q 17  	//global precision
 #include <IQmathLib.h>  //Virtual FPU
 
-#define BETA
+#define BETA // Comment to switch to ALPHA
 
 /*------------------------------------------------------------------------------------------------
  * 	 Robots constant
  *------------------------------------------------------------------------------------------------*/
 #ifdef BETA
 
-#define PID_P _IQ(3600)// 74.21
-#define PID_I _IQ(31.2646) // 1134
+#define PID_P _IQ(320)// 74.21
+#define PID_I _IQ(915) // 1134
 #define PID_D _IQ(0.000)
 
 static const _iq WHEEL_DIAMETER = _IQ(0.025);//5 cm, but gear divide by two
