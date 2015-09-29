@@ -1,22 +1,22 @@
 
-XOPTS = -I"/home/philippe/ti/xdctools_3_25_03_72/packages/" -Dxdc_target_types__=/home/philippe/ti/xdctools_3_25_03_72/packages/ti/targets/std.h -Dxdc_target_name__=C28_large
+XOPTS = -I"/opt/ti/xdctools_3_25_03_72/packages/" -Dxdc_target_types__=/opt/ti/xdctools_3_25_03_72/packages/ti/targets/std.h -Dxdc_target_name__=C28_large
 
-vpath % /home/philippe/ti/bios_6_35_04_50/packages/ti/sysbios/
-vpath %.c /home/philippe/ti/xdctools_3_25_03_72/packages/
+vpath % /opt/ti/bios_6_35_04_50/packages/ti/sysbios/
+vpath %.c /opt/ti/xdctools_3_25_03_72/packages/
 
 CCOPTS    = -v28 -DLARGE_MODEL=1 -ml -q -mo  --program_level_compile -g 
 
-XDC_ROOT  = /home/philippe/ti/xdctools_3_25_03_72/packages/
+XDC_ROOT  = /opt/ti/xdctools_3_25_03_72/packages/
 
-BIOS_ROOT = /home/philippe/ti/bios_6_35_04_50/packages/ti/sysbios/
+BIOS_ROOT = /opt/ti/bios_6_35_04_50/packages/ti/sysbios/
 
 BIOS_DEFS =  -Dti_sysbios_BIOS_swiEnabled__D=TRUE -Dti_sysbios_BIOS_taskEnabled__D=TRUE -Dti_sysbios_BIOS_clockEnabled__D=TRUE -Dti_sysbios_hal_Hwi_DISABLE_ALL_HOOKS -Dti_sysbios_knl_Swi_DISABLE_ALL_HOOKS -Dti_sysbios_BIOS_smpEnabled__D=FALSE -Dti_sysbios_Build_useHwiMacros -Dti_sysbios_knl_Swi_numPriorities__D=16 -Dti_sysbios_knl_Task_deleteTerminatedTasks__D=FALSE -Dti_sysbios_knl_Task_numPriorities__D=16 -Dti_sysbios_knl_Clock_TICK_SOURCE=ti_sysbios_knl_Clock_TickSource_TIMER -Dti_sysbios_knl_Clock_TICK_MODE=ti_sysbios_knl_Clock_TickMode_PERIODIC -Dti_sysbios_hal_Core_delegate_getId=ti_sysbios_hal_CoreNull_getId__E -Dti_sysbios_hal_Core_delegate_interruptCore=ti_sysbios_hal_CoreNull_interruptCore__E -Dti_sysbios_hal_Core_delegate_lock=ti_sysbios_hal_CoreNull_lock__E -Dti_sysbios_hal_Core_delegate_unlock=ti_sysbios_hal_CoreNull_unlock__E -Dti_sysbios_hal_Core_numCores__D=1 -Dti_sysbios_hal_CoreNull_numCores__D=1 -Dti_sysbios_utils_Load_taskEnabled__D=TRUE -Dti_sysbios_utils_Load_swiEnabled__D=FALSE -Dti_sysbios_family_c28_Hwi_dispatcherSwiSupport__D=TRUE -Dti_sysbios_family_c28_Hwi_dispatcherTaskSupport__D=TRUE -Dti_sysbios_family_c28_Hwi_dispatcherAutoNestingSupport__D=TRUE -Dti_sysbios_family_c28_Hwi_dispatcherIrpTrackingSupport__D=TRUE -Dti_sysbios_knl_Semaphore_supportsEvents__D=FALSE -Dxdc_runtime_Log_DISABLE_ALL -Dti_sysbios_family_c28_Hwi_zeroLatencyIERMask__D=0U
 
-BIOS_INC  = -I"/home/philippe/ti/bios_6_35_04_50/packages/"
+BIOS_INC  = -I"/opt/ti/bios_6_35_04_50/packages/"
 
-CC = /home/philippe/ti/ccsv5/tools/compiler/c2000_6.2.0/bin/cl2000 -c $(CCOPTS) -I /home/philippe/ti/ccsv5/tools/compiler/c2000_6.2.0/include
-ASM = /home/philippe/ti/ccsv5/tools/compiler/c2000_6.2.0/bin/cl2000 -c $(CCOPTS) -I /home/philippe/ti/ccsv5/tools/compiler/c2000_6.2.0/include
-AR = /home/philippe/ti/ccsv5/tools/compiler/c2000_6.2.0/bin/ar2000 rq
+CC = /opt/ti/ccsv5/tools/compiler/c2000_6.2.0/bin/cl2000 -c $(CCOPTS) -I /opt/ti/ccsv5/tools/compiler/c2000_6.2.0/include
+ASM = /opt/ti/ccsv5/tools/compiler/c2000_6.2.0/bin/cl2000 -c $(CCOPTS) -I /opt/ti/ccsv5/tools/compiler/c2000_6.2.0/include
+AR = /opt/ti/ccsv5/tools/compiler/c2000_6.2.0/bin/ar2000 rq
 
 DEL = rm -f
 CP = cp -f

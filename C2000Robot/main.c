@@ -152,30 +152,24 @@ Int main(){
 /*
  * ======= Test the connection of all device ======
  */
-#ifdef DEBUG
 
-_iq command = _IQ(0.3);
-uint16_t pwm0 = 2000;
-uint16_t pwm1 = 2000;
-uint16_t pwm2 = 2000;
-uint16_t pwm3 = 2000;
+// Decide which type of data to print
+typedef enum {
+	NO_PRINT,
+	RF_COMMAND,
+	MOTOR_DATA,
+	RF_AND_MOTOR,
+	RAW_ENCODER
 
-#endif
-bool debugFlag = false;
+}printer_states;
+
+printer_states printerState = NO_PRINT;
 //This function is executed every 10 ms
 void Round_Robin(){
-
-#ifdef RELEASE
-
 
 	//***Captor read***  (Read captor first for stability)
 	quad_readCounters(&HandleRobot.HandleQuad[0]);
 	quad_readCounters(&HandleRobot.HandleQuad[1]);
-	//System_printf("\r\n");
-	//quad_displayCounters(&HandleRobot.HandleQuad[0]);
-	//quad_displayCounters(&HandleRobot.HandleQuad[1]);
-	//quad_displayVelocity(&HandleRobot.HandleQuad[0]);
-	//quad_displayVelocity(&HandleRobot.HandleQuad[1]);
 
 	/*System_printf("x=%f y=%f theta=%f\r\n",HandleRobot.robotParam.XVelocityCommand.floating
 									  ,HandleRobot.robotParam.YVelocityCommand.floating
@@ -258,8 +252,7 @@ void Round_Robin(){
 
 	//***Unpack***
 	if(newPacket){
-		System_printf("new packet\r\n");
-		debugFlag = true;
+		//System_printf("new packet\r\n");
 		unpackBuffer(HandleRF.RXPayload);
 	}
 
@@ -275,68 +268,103 @@ void Round_Robin(){
 	pid_update(&HandleRobot.HandlePid[2], _IQabs(HandleRobot.HandleQuad[1].wheelVelocity[0]));
 	pid_update(&HandleRobot.HandlePid[3], _IQabs(HandleRobot.HandleQuad[1].wheelVelocity[1]));
 
-	pid_display(&HandleRobot.HandlePid[0]);
+	//pid_display(&HandleRobot.HandlePid[0]);
 
 	//***Actuator update***
 	dcMotor_update(&HandleRobot.HandleMotor[0],&HandleRobot.HandlePid[0]);
 	dcMotor_update(&HandleRobot.HandleMotor[1],&HandleRobot.HandlePid[1]);
 	dcMotor_update(&HandleRobot.HandleMotor[2],&HandleRobot.HandlePid[2]);
 	dcMotor_update(&HandleRobot.HandleMotor[3],&HandleRobot.HandlePid[3]);
+
+
+	switch(printerState){
+		case RF_COMMAND:
+			// X, Y, theta
+			System_printf("%f,%f,%f\r\n",
+					HandleRobot.robotParam.XVelocityCommand.floating,
+					HandleRobot.robotParam.YVelocityCommand.floating,
+					HandleRobot.robotParam.ThetaVelocityCommand.floating);
+			break;
+		case RF_AND_MOTOR:
+			System_printf("%f,%f,%f,",
+					HandleRobot.robotParam.XVelocityCommand.floating,
+					HandleRobot.robotParam.YVelocityCommand.floating,
+					HandleRobot.robotParam.ThetaVelocityCommand.floating);
+			// Missing break to prevent repetition
+		case MOTOR_DATA:
+			System_printf("%f,%f,%f,%f\n\r",
+					_IQtoF(HandleRobot.HandlePid[0].term.Ref),					// Consign from four_wheel
+					_IQtoF(HandleRobot.HandlePid[0].term.Ref - HandleRobot.HandlePid[0].term.Fbk), // Error from pid
+					_IQtoF(HandleRobot.HandlePid[0].term.Out),					// Command from pid
+					_IQtoF(_IQabs(HandleRobot.HandleQuad[0].wheelVelocity[0])) // Wheel speed
+			);
+			break;
+		case RAW_ENCODER:
+			//quad_displayCounters(&HandleRobot.HandleQuad[0]);
+			//quad_displayCounters(&HandleRobot.HandleQuad[1]);
+			//System_printf("\r\n");
+			System_printf("%d, %d, %d, %d\n\r",
+					HandleRobot.HandleQuad[0].Count0,
+					HandleRobot.HandleQuad[0].Count1,
+					HandleRobot.HandleQuad[1].Count0,
+					HandleRobot.HandleQuad[1].Count1
+			);
+
+			break;
+		case NO_PRINT:
+			break;
+	}
+
 #endif // PID_TEST
-
-#endif // RELEASH
-
-#ifdef DEBUG
-
-	quad_readCounters(&HandleRobot.HandleQuad[0]);
-	quad_readCounters(&HandleRobot.HandleQuad[1]);
-
-	HandleRobot.HandlePid[0].term.Ref = command;
-	HandleRobot.HandlePid[1].term.Ref = command;
-	HandleRobot.HandlePid[2].term.Ref = command;
-	HandleRobot.HandlePid[3].term.Ref = command;
-
-	pid_update(&HandleRobot.HandlePid[0], _IQabs(HandleRobot.HandleQuad[0].wheelVelocity[0]));
-	pid_update(&HandleRobot.HandlePid[1], _IQabs(HandleRobot.HandleQuad[0].wheelVelocity[1]));
-	pid_update(&HandleRobot.HandlePid[2], _IQabs(HandleRobot.HandleQuad[1].wheelVelocity[0]));
-	pid_update(&HandleRobot.HandlePid[3], _IQabs(HandleRobot.HandleQuad[1].wheelVelocity[1]));
-
-
-	dcMotor_update(&HandleRobot.HandleMotor[0],&HandleRobot.HandlePid[0]);
-	dcMotor_update(&HandleRobot.HandleMotor[1],&HandleRobot.HandlePid[1]);
-	dcMotor_update(&HandleRobot.HandleMotor[2],&HandleRobot.HandlePid[2]);
-	dcMotor_update(&HandleRobot.HandleMotor[3],&HandleRobot.HandlePid[3]);
-#endif
 
 }
 
 //This function is executed when roundRobin is not
 void Idle(){
-#ifdef DEBUG
 	if( SCI_getRxFifoStatus (HandleRobot.HandleSCI) >= SCI_FifoStatus_1_Word){
 		lettre = SCI_getData (HandleRobot.HandleSCI);
 		SCI_resetRxFifo(HandleRobot.HandleSCI);
 	}
 
-	if(lettre == '1'){
-		fourWheelCtrl_Update( _IQ(1), _IQ(0), _IQ(0));
+	if(lettre == 'h'){
+		// Split the string since it's too long for the buffer
+		System_printf(
+				"Help:\r\n"
+				"h : Print help\r\n"
+				"x : Disable print\r\n"
+				);
+		System_flush();
+		System_printf(
+				"m : Set mode print motor and encoder data\r\n"
+				"c : Set mode print RF command\r\n"
+				);
+		System_flush();
+		System_printf(
+				"a : Set mode print motor and encoder data and RF command\r\n"
+				"e : Set mode print encoder\r\n"
+				);
 	}
-	if(lettre == '2'){
-		fourWheelCtrl_Update( _IQ(0), _IQ(1), _IQ(0));
+	if(lettre == 'x'){
+		printerState = NO_PRINT;
 	}
-	if(lettre == '3'){
-		fourWheelCtrl_Update( _IQ(1), _IQ(1), _IQ(0));
+	if(lettre == 'm'){
+		printerState = MOTOR_DATA;
+		System_printf("PID_consigne(motor0), PID_error, PID_out(command), encoder_speed(m/s)\n\r");
+	}
+	if(lettre == 'c'){
+		printerState = RF_COMMAND;
+		System_printf("X, Y, Theta\n\r");
+	}
+	if(lettre == 'a'){
+		printerState = RF_AND_MOTOR;
+		System_printf("X, Y, Theta, PID_consigne(motor0), PID_error, PID_out(command), encoder_speed(m/s)\n\r");
+	}
+	if(lettre == 'e'){
+		printerState = RAW_ENCODER;
+		System_printf("tick_m0, tick_m1, tick_m2, tick_m3\n\r");
 	}
 
 	lettre = ' ';
-
-#endif
-	if(debugFlag){
-		System_printf("X = %f , Y = %f, Theta = %f\n\r",HandleRobot.robotParam.XVelocityCommand.floating,
-				HandleRobot.robotParam.YVelocityCommand.floating,
-				HandleRobot.robotParam.ThetaVelocityCommand.floating);
-		debugFlag = false;
-	}
 
 	System_flush();
 }

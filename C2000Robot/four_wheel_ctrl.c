@@ -38,8 +38,6 @@ void fourWheelCtrl_Init(){
 
 void fourWheelCtrl_Update( float fX, float fY, float fTheta){
 	//Conversion to float because iq doesn't work when pass has argument
-	_iq pX = _IQ(fX);
-	_iq pY = _IQ(fY);
 	_iq pTheta = _IQ(fTheta);
 	/*
 	_iq magnitude = _IQmag(pX,pY);
@@ -56,22 +54,22 @@ void fourWheelCtrl_Update( float fX, float fY, float fTheta){
 	// dephasage = 315 degrees = 5.4977825 radians
 	_iq v3 = _IQmpy(magnitude, _IQsin(angle + _IQ(5.4977825)));*/
 
-	_iq half_pi = _IQ(0.707);
+	float sqrt_two = 0.707;
 	// j = 0.18 * PI * w
 	//_iq j = _IQmpy(w, _IQ(0.5654));
 	// dephasage = 45 degrees = 0.785 radians
-	float vf1 = -0.707 * (fX-fY);
-	float vf2 = -0.707 * (fX+fY);
-	float vf3 = 0.707 * (fX-fY);
-	float vf0 = 0.707 * (fX+fY);
+	float vf1 = -sqrt_two * (fX-fY); // changement divisé par deux ancienne valeur 0.707
+	float vf2 = -sqrt_two * (fX+fY);
+	float vf3 =  sqrt_two * (fX-fY);
+	float vf0 =  sqrt_two * (fX+fY);
 
 #ifdef BETA
 	float rRobot = pTheta * 0.082;
 
-	HandleRobot.HandlePid[0].term.Ref = _IQ17(vf2) + _IQ17(pTheta);
-	HandleRobot.HandlePid[1].term.Ref = _IQ17(vf1) + _IQ17(pTheta);
-	HandleRobot.HandlePid[2].term.Ref = _IQ17(vf0) + _IQ17(pTheta);
-	HandleRobot.HandlePid[3].term.Ref = _IQ17(vf3) + _IQ17(pTheta);
+	HandleRobot.HandlePid[0].term.Ref = _IQ17(vf2) + _IQ17(rRobot);
+	HandleRobot.HandlePid[1].term.Ref = _IQ17(vf1) + _IQ17(rRobot);
+	HandleRobot.HandlePid[2].term.Ref = _IQ17(vf0) + _IQ17(rRobot);
+	HandleRobot.HandlePid[3].term.Ref = _IQ17(vf3) + _IQ17(rRobot);
 	DCMotor_DIR dir_right_alpha = LEFT;
 	DCMotor_DIR dir_left_alpha = RIGHT;
 #else // Alpha
@@ -86,16 +84,16 @@ void fourWheelCtrl_Update( float fX, float fY, float fTheta){
 #endif // BETA
 
 
-	if(_IQtoF(HandleRobot.HandlePid[0].term.Ref) < 0 ){dcMotor_setDirection(&HandleRobot.HandleMotor[0],dir_right_alpha);}
-	else{dcMotor_setDirection(&HandleRobot.HandleMotor[0],dir_left_alpha);}
+	if(_IQtoF(HandleRobot.HandlePid[0].term.Ref) > 0 ){dcMotor_setDirection(&HandleRobot.HandleMotor[0],dir_left_alpha);}
+	else{dcMotor_setDirection(&HandleRobot.HandleMotor[0],dir_right_alpha);}
 
-	if(_IQtoF(HandleRobot.HandlePid[1].term.Ref) < 0 ){dcMotor_setDirection(&HandleRobot.HandleMotor[1],dir_right_alpha);}
+	if(_IQtoF(HandleRobot.HandlePid[1].term.Ref) > 0 ){dcMotor_setDirection(&HandleRobot.HandleMotor[1],dir_right_alpha);}
 	else{dcMotor_setDirection(&HandleRobot.HandleMotor[1],dir_left_alpha);}
 
-	if(_IQtoF(HandleRobot.HandlePid[2].term.Ref) < 0 ){dcMotor_setDirection(&HandleRobot.HandleMotor[2],dir_right_alpha);}
-	else{dcMotor_setDirection(&HandleRobot.HandleMotor[2],dir_left_alpha);}
+	if(_IQtoF(HandleRobot.HandlePid[2].term.Ref) > 0 ){dcMotor_setDirection(&HandleRobot.HandleMotor[2],dir_left_alpha);}
+	else{dcMotor_setDirection(&HandleRobot.HandleMotor[2],dir_right_alpha);}
 
-	if(_IQtoF(HandleRobot.HandlePid[3].term.Ref) < 0 ){dcMotor_setDirection(&HandleRobot.HandleMotor[3],dir_right_alpha);}
+	if(_IQtoF(HandleRobot.HandlePid[3].term.Ref) > 0 ){dcMotor_setDirection(&HandleRobot.HandleMotor[3],dir_right_alpha);}
 	else{dcMotor_setDirection(&HandleRobot.HandleMotor[3],dir_left_alpha);}
 
 

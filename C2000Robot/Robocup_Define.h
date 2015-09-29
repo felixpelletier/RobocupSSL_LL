@@ -56,8 +56,8 @@ typedef _Bool bool_t;
  *------------------------------------------------------------------------------------------------*/
 #ifdef BETA
 
-#define PID_P _IQ(320)// 74.21
-#define PID_I _IQ(915) // 1134
+#define PID_P _IQ(160)//start:320 74.21
+#define PID_I _IQ(457) //start:915 1134
 #define PID_D _IQ(0.000)
 
 static const _iq WHEEL_DIAMETER = _IQ(0.025);//5 cm, but gear divide by two
