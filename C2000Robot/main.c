@@ -159,8 +159,8 @@ typedef enum {
 	RF_COMMAND,
 	MOTOR_DATA,
 	RF_AND_MOTOR,
-	RAW_ENCODER
-
+	RAW_ENCODER,
+	MOTOR_AND_ENCODER_DATA
 }printer_states;
 
 printer_states printerState = NO_PRINT;
@@ -311,6 +311,18 @@ void Round_Robin(){
 			);
 
 			break;
+		case MOTOR_AND_ENCODER_DATA:
+					System_printf("%d,%f,%d,%f,%d,%f,%d,%f\n\r",
+							EPWM_TIMER_TBPRD -_IQint(HandleRobot.HandlePid[0].term.Out), // Motor0 command
+							_IQtoF(HandleRobot.HandleQuad[0].wheelVelocity[0]), 		 // Encoder0 speed(m/s
+							EPWM_TIMER_TBPRD -_IQint(HandleRobot.HandlePid[1].term.Out), // Motor1 command
+							_IQtoF(HandleRobot.HandleQuad[0].wheelVelocity[1]), 		 // Encoder1 speed(m/s
+							EPWM_TIMER_TBPRD -_IQint(HandleRobot.HandlePid[2].term.Out), // Motor2 command
+							_IQtoF(HandleRobot.HandleQuad[1].wheelVelocity[0]), 		 // Encoder2 speed(m/s
+							EPWM_TIMER_TBPRD -_IQint(HandleRobot.HandlePid[3].term.Out), // Motor3 command
+							_IQtoF(HandleRobot.HandleQuad[1].wheelVelocity[1]) 		 	 // Encoder3 speed(m/s
+					);
+					break;
 		case NO_PRINT:
 			break;
 	}
@@ -343,6 +355,10 @@ void Idle(){
 				"a : Set mode print motor and encoder data and RF command\r\n"
 				"e : Set mode print encoder\r\n"
 				);
+		System_flush();
+		System_printf(
+				"s : Set mode print motor and encoder data\r\n"
+				);
 	}
 	if(lettre == 'x'){
 		printerState = NO_PRINT;
@@ -362,6 +378,10 @@ void Idle(){
 	if(lettre == 'e'){
 		printerState = RAW_ENCODER;
 		System_printf("tick_m0, tick_m1, tick_m2, tick_m3\n\r");
+	}
+	if(lettre == 's'){
+		printerState = MOTOR_AND_ENCODER_DATA;
+		System_printf("pwmM1, vitesseM1, pwmM2, vitesseM2, pwmM3, vitesseM3, pwmM4, vitesseM4\n\r");
 	}
 
 	lettre = ' ';
