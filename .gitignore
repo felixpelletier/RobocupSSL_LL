@@ -13,5 +13,15 @@ RobocupV2_1/src/sysbios/sysbios.a28L
 RobocupV2_2/Debug/*
 RobocupV2_2/src/sysbios/sysbios.a28L
 
+# Debug directory containing compiled files
+/*/Debug
+
 *.o
 *.exe
+
+# swap files from some text editors
+*.swp
+
+# .settings directories since they are probably not needed, remove if problems happen.
+/*/.settings
+
