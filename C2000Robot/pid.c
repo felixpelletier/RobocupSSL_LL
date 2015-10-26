@@ -50,6 +50,7 @@ _iq pid_update(PID_Handle *pPid, _iq pFbk){
 	// Ki * (w1 * (Ref - Fbk)) + i1
 	// w1 = 1 when no saturation occur
 	pPid->data.ui = _IQmpy(pPid->param.Ki, _IQmpy(pPid->data.w1, (pPid->term.Ref - pPid->term.Fbk))) + pPid->data.i1;
+	//pPid->data.ui = _IQsat(pPid->data.ui, MAX_IQ_VALUE, MIN_IQ_VALUE); // with staturation on I
 	pPid->data.i1 = pPid->data.ui;
 
 	/* derivative term */
@@ -64,7 +65,7 @@ _iq pid_update(PID_Handle *pPid, _iq pFbk){
 	pPid->data.v1 = _IQmpy(pPid->param.Kp, pPid->data.up) + pPid->data.ui + pPid->data.ud; // previously kp ( up + ui + ud)
 	// out = Kp * (up + ui + ud)
 	pPid->term.Out = _IQsat(pPid->data.v1, pPid->param.Umax, pPid->param.Umin);
-	//pPid->data.w1 = (pPid->term.Out == pPid->data.v1) ? _IQ(1.0) : _IQ(1.0);
+	//pPid->data.w1 = (pPid->term.Out == pPid->data.v1) ? _IQ(1.0) : _IQ(0.0);
 
 	return pPid->term.Out;
 }

@@ -15,6 +15,7 @@ ifneq (clean,$(MAKECMDGOALS))
 $(CFG_SRCDIR)/makefile.libs: $(GEN_OPTS) $(CFG_SRCS)
 	-@$(if $(wildcard $@),$(TOUCH),:)
 endif
+SVNREV:='"$(shell git log --pretty="format:%h" -n1 HEAD )"'
 
 #add generated makefile to list of files to delete during a clean
 #GEN_MISC_FILES__QTD += "$(CFG_SRCDIR)/makefile.libs" 

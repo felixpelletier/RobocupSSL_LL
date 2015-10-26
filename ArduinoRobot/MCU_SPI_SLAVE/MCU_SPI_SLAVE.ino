@@ -83,11 +83,13 @@ void setup (void)
   digitalWrite(2, LOW);
   digitalWrite(3, LOW);
   digitalWrite(4, LOW);
-  digitalWrite(5, LOW);
+  digitalWrite(5, HIGH); // Dribbler
   digitalWrite(6, LOW);
   digitalWrite(7, HIGH);
   digitalWrite(8, LOW);
   digitalWrite(9, LOW);
+
+  analogWrite(5, 128); // 50% of pwm for dribbler
   Serial.println("Relais déclenché");
 
   // turn on SPI in slave mode

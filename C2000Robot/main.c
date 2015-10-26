@@ -7,7 +7,7 @@
 #define RELEASE   //RELEASE or DEBUG
 #define HARDWARE_TEST
 //#define PID_TEST
-#define OPEN_LOOP
+//#define OPEN_LOOP
 
 #include "Robocup_Define.h"
 #include "Serial.h"
@@ -144,6 +144,8 @@ Int main(){
      * use ROV->SysMin to view the characters in the circular buffer
      */
     System_printf("************enter OS************\r\n");
+    //System_printf(GITREV);
+
     BIOS_start();    /* does not return */
     return(0);
 }
@@ -179,12 +181,8 @@ void Round_Robin(){
 	_iq command = _IQ(0);
 	if(round_robin_count < 200)
 		command = _IQ(0.0);
-	else if(round_robin_count < 100 + 200)
-		command = _IQ(0.4);
-	else if(round_robin_count < 200 + 200)
-		command = _IQ(0.4);
-	else if(round_robin_count < 300 + 200)
-		command = _IQ(0.4);
+	else if(round_robin_count < 200 + 1500)
+			command = _IQ(1);
 	else{
 		command = _IQ(0);
 		dcMotor_setPWM(&HandleRobot.HandleMotor[0], EPWM_BRAKE);
@@ -196,7 +194,7 @@ void Round_Robin(){
 
 	// To send a 45 degrees X==Y. (45 degrees => only two wheels running)
 	fourWheelCtrl_Update(_IQtoF(command),
-						 _IQtoF(command),
+						 _IQtoF(0),
 						 0.0);
 	round_robin_count++;
 
@@ -204,20 +202,25 @@ void Round_Robin(){
 #ifdef OPEN_LOOP// open loop
 		if(round_robin_count < 2){
 			System_printf("max motor %d\r\n", dcMotor_getPWM(&HandleRobot.HandleMotor[1]));
-			System_printf("Four_wheel_in, Four_wheel_out * 1000, first_wheel_speed(m/s)\n\r");
+			System_printf("Four_wheel_out * 1500, first_wheel_speed(m/s)\n\r");
 		}
 
 		float consigne = _IQtoF(command) *  1500.0;
 
-		dcMotor_updatePWM(&HandleRobot.HandleMotor[0], _IQint(_IQ(consigne)));
-		dcMotor_updatePWM(&HandleRobot.HandleMotor[1], _IQint(_IQ(0)));
-		dcMotor_updatePWM(&HandleRobot.HandleMotor[2], _IQint(_IQ(consigne)));
-		dcMotor_updatePWM(&HandleRobot.HandleMotor[3], _IQint(_IQ(0)));
+		dcMotor_updatePWM(&HandleRobot.HandleMotor[0], _IQint(_IQ(0)));
+		dcMotor_updatePWM(&HandleRobot.HandleMotor[1], _IQint(_IQ(consigne)));
+		dcMotor_updatePWM(&HandleRobot.HandleMotor[2], _IQint(_IQ(0)));
+		dcMotor_updatePWM(&HandleRobot.HandleMotor[3], _IQint(_IQ(consigne)));
 
-		System_printf("%f,%f,%f\n\r",
-				_IQtoF(command),
+		System_printf("%f,%f,%f,%f,%f,%f,%f,%f\n\r",
 				consigne,
-				_IQtoF(_IQabs(HandleRobot.HandleQuad[1].wheelVelocity[0])));
+				_IQtoF(_IQabs(HandleRobot.HandleQuad[0].wheelVelocity[0])),
+				consigne,
+				_IQtoF(_IQabs(HandleRobot.HandleQuad[0].wheelVelocity[1])),
+				consigne,
+				_IQtoF(_IQabs(HandleRobot.HandleQuad[1].wheelVelocity[0])),
+				consigne,
+				_IQtoF(_IQabs(HandleRobot.HandleQuad[1].wheelVelocity[1])));
 #else //close loop
 		if(round_robin_count < 2){
 			System_printf("P%4.f I%4.f D%4.f\r\n", _IQtoF(PID_P)
@@ -225,21 +228,35 @@ void Round_Robin(){
 												 , _IQtoF(PID_D));
 
 			System_flush();
-			System_printf("Four_wheel_in, Four_wheel_out(consigne), error, PID_out(command), first_wheel_speed(m/s)\n\r");
+			System_printf("Consigne0, PID_out0, wheel0_speed(m/s)\n\r");
 			System_flush();
 		}
 
-		pid_update(&HandleRobot.HandlePid[0], _IQabs(HandleRobot.HandleQuad[0].wheelVelocity[1]));
-		pid_update(&HandleRobot.HandlePid[2], _IQabs(HandleRobot.HandleQuad[0].wheelVelocity[1]));
-		dcMotor_update(&HandleRobot.HandleMotor[0], &HandleRobot.HandlePid[0]);
-		dcMotor_update(&HandleRobot.HandleMotor[2], &HandleRobot.HandlePid[2]);
+		//***PID maths***
+		pid_update(&HandleRobot.HandlePid[0], _IQabs(HandleRobot.HandleQuad[0].wheelVelocity[0]));
+		pid_update(&HandleRobot.HandlePid[1], _IQabs(HandleRobot.HandleQuad[0].wheelVelocity[1]));
+		pid_update(&HandleRobot.HandlePid[2], _IQabs(HandleRobot.HandleQuad[1].wheelVelocity[0]));
+		pid_update(&HandleRobot.HandlePid[3], _IQabs(HandleRobot.HandleQuad[1].wheelVelocity[1]));
 
-		System_printf("%f,%f,%f,%f,%f\n\r",
-				_IQtoF(command),											// Command to four_wheel
+		//***Update pwn signal to the motors***
+		dcMotor_update(&HandleRobot.HandleMotor[0],&HandleRobot.HandlePid[0]);
+		dcMotor_update(&HandleRobot.HandleMotor[1],&HandleRobot.HandlePid[1]);
+		dcMotor_update(&HandleRobot.HandleMotor[2],&HandleRobot.HandlePid[2]);
+		dcMotor_update(&HandleRobot.HandleMotor[3],&HandleRobot.HandlePid[3]);
+
+		System_printf("%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f\n\r",
 				_IQtoF(HandleRobot.HandlePid[0].term.Ref),					// Consign from four_wheel
-				_IQtoF(HandleRobot.HandlePid[0].term.Ref - HandleRobot.HandlePid[0].term.Fbk), // Error from pid
 				_IQtoF(HandleRobot.HandlePid[0].term.Out),					// Command from pid
-				_IQtoF(_IQabs(HandleRobot.HandleQuad[0].wheelVelocity[0]))  // Wheel speed
+				_IQtoF(_IQabs(HandleRobot.HandleQuad[0].wheelVelocity[0])),
+				_IQtoF(HandleRobot.HandlePid[1].term.Ref),					// Consign from four_wheel
+				_IQtoF(HandleRobot.HandlePid[1].term.Out),
+				_IQtoF(_IQabs(HandleRobot.HandleQuad[0].wheelVelocity[1])),
+				_IQtoF(HandleRobot.HandlePid[2].term.Ref),					// Consign from four_wheel
+				_IQtoF(HandleRobot.HandlePid[2].term.Out),
+				_IQtoF(_IQabs(HandleRobot.HandleQuad[1].wheelVelocity[0])),
+				_IQtoF(HandleRobot.HandlePid[3].term.Ref),					// Consign from four_wheel
+				_IQtoF(HandleRobot.HandlePid[3].term.Out),
+				_IQtoF(_IQabs(HandleRobot.HandleQuad[1].wheelVelocity[1]))
 		);
 #endif // OPEN_LOOP
 
