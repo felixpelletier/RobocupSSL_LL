@@ -270,6 +270,8 @@ typedef struct Robot_Handle {
     CPU_Handle HandleCpu;
     PLL_Handle HandlePll;
     WDOG_Handle HandleWDog;
+    ADC_Handle HandleADC;
+    PIE_Handle HandlePIE;
 
     // Robot
     Demux_Handle HandleDemux;

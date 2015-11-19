@@ -6,7 +6,7 @@
 
 #define RELEASE   //RELEASE or DEBUG
 #define HARDWARE_TEST
-#define PID_TEST
+//#define PID_TEST
 #define OPEN_LOOP
 
 #include "Robocup_Define.h"
@@ -37,6 +37,43 @@ volatile Bool isrFlag = FALSE;
 //Robot global variable
 Robot_Handle HandleRobot;
 
+uint16_t Digital_Result =0;
+
+//start ADC
+interrupt void adc_isr(void)
+{
+   //discard ADCRESULT0 as part of the workaround to the 1st sample errata for rev0
+   //Digital_Result = ADC_readResult(HandleRobot.HandleADC, ADC_ResultNumber_0);
+   ADC_clearIntFlag(HandleRobot.HandleADC, ADC_IntNumber_1);   // Clear ADCINT1 flag reinitialize for next SOC
+   PIE_clearInt(HandleRobot.HandlePIE, PIE_GroupNumber_10);// Acknowledge interrupt to PIE
+   return;
+}
+
+void ADC_INIT_Fn()
+{
+	ADC_enableBandGap(HandleRobot.HandleADC);
+	ADC_enableRefBuffers(HandleRobot.HandleADC);
+	ADC_powerUp(HandleRobot.HandleADC);
+	ADC_enable(HandleRobot.HandleADC);
+	ADC_setVoltRefSrc(HandleRobot.HandleADC, ADC_VoltageRefSrc_Int);
+}
+
+void ADC_SETUP_Fn()
+{
+	PIE_registerPieIntHandler(HandleRobot.HandlePIE, PIE_GroupNumber_10, PIE_SubGroupNumber_1, (intVec_t)&adc_isr);
+	PIE_enableAdcInt(HandleRobot.HandlePIE, ADC_IntNumber_1); // Enable ADCINT1 in PIE
+	//Note: Channel ADCINA1  will be double sampled to workaround the ADC 1st sample issue for rev0 silicon errata
+	ADC_setIntPulseGenMode(HandleRobot.HandleADC, ADC_IntPulseGenMode_Prior);               //ADCINT1 trips after AdcResults latch
+	ADC_enableInt(HandleRobot.HandleADC, ADC_IntNumber_1);                                  //Enabled ADCINT1
+	ADC_setIntMode(HandleRobot.HandleADC, ADC_IntNumber_1, ADC_IntMode_ClearFlag);          //Disable ADCINT1 Continuous mode
+	ADC_setIntSrc(HandleRobot.HandleADC, ADC_IntNumber_1, ADC_IntSrc_EOC0);                 //setup EOC0 to trigger ADCINT1 to fire
+	ADC_setSocChanNumber (HandleRobot.HandleADC, ADC_SocNumber_0, ADC_SocChanNumber_A0);    //set SOC0 channel select to ADCINA4
+	ADC_setSocTrigSrc(HandleRobot.HandleADC, ADC_SocNumber_0, ADC_SocTrigSrc_Sw);     //set SOC0 start trigger on EPWM1A, due to round-robin SOC0 converts first then SOC1
+	ADC_setSocSampleWindow(HandleRobot.HandleADC, ADC_SocNumber_0, ADC_SocSampleWindow_7_cycles);   //set SOC0 S/H Window to 7 ADC Clock Cycles, (6 ACQPS plus 1)
+}
+//stop ADC
+
+
 //Set up function executed once before entering OS
 Void SetUp(){
 
@@ -55,8 +92,18 @@ Void SetUp(){
     HandleRobot.HandlePwm1 = PWM_init((void *)PWM_ePWM1_BASE_ADDR, sizeof(PWM_Obj));
     HandleRobot.HandlePwm2 = PWM_init((void *)PWM_ePWM2_BASE_ADDR, sizeof(PWM_Obj));
     HandleRobot.HandlePwm3 = PWM_init((void *)PWM_ePWM3_BASE_ADDR, sizeof(PWM_Obj));
+     HandleRobot.HandleADC = ADC_init((void *)ADC_BASE_ADDR, sizeof(ADC_Obj));
+     HandleRobot.HandlePIE = PIE_init((void *)PIE_BASE_ADDR, sizeof(PIE_Obj));
 
-    WDOG_disable(HandleRobot.HandleWDog);
+
+     // ADC START
+    PIE_disable(HandleRobot.HandlePIE);
+    PIE_disableAllInts( HandleRobot.HandlePIE );
+
+     WDOG_disable(HandleRobot.HandleWDog);
+
+     CLK_enableAdcClock(HandleRobot.HandleCLK);
+     // ADC STOP
 
     //Select the internal oscillator 1 as the clock source
     CLK_setOscSrc(HandleRobot.HandleCLK, CLK_OscSrc_Internal);
@@ -76,6 +123,12 @@ Void SetUp(){
     spi_init(HandleRobot.HandleCLK,HandleRobot.HandleSPI);
     spi_fifo_init(HandleRobot.HandleSPI);
     spi_gpio_init(HandleRobot.HandleGPIO);
+
+    // ADC START
+      ADC_INIT_Fn();
+      ADC_SETUP_Fn();
+          //ADC_forceConversion(myAdc, ADC_SocNumber_0);// Wait for ADC interrupt
+      // ADC STOP
 
     demux_Init(GPIO_Number_19, GPIO_Number_12, GPIO_Number_6, CS_0);
     demux_disconnect();
@@ -182,6 +235,10 @@ void Round_Robin(){
 	quad_readCounters(&HandleRobot.HandleQuad[1]);
 	total_ticks += HandleRobot.HandleQuad[0].Count0;
 
+	ADC_forceConversion(HandleRobot.HandleADC , ADC_SocNumber_0);
+	Digital_Result = ADC_readResult(HandleRobot.HandleADC, ADC_ResultNumber_0);
+	System_printf("ADC: %d\r\n", Digital_Result);
+
 	/*System_printf("tick = %d \r\n",
 			total_ticks);
 	System_printf(" distance = %f\r\n",
@@ -284,7 +341,7 @@ void Round_Robin(){
 
 	//***Unpack***
 	if(newPacket){
-		System_printf("new packet\r\n");
+		//System_printf("new packet\r\n");
 		unpackBuffer(HandleRF.RXPayload);
 	}
 
