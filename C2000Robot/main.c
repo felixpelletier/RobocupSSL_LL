@@ -6,8 +6,8 @@
 
 #define RELEASE   //RELEASE or DEBUG
 #define HARDWARE_TEST
-//#define PID_TEST
-//#define OPEN_LOOP
+#define PID_TEST
+#define OPEN_LOOP
 
 #include "Robocup_Define.h"
 #include "Serial.h"
@@ -92,15 +92,22 @@ Void SetUp(){
 
 
     /// PWM
+/*	#ifdef BETA
+    HandleRobot.HandleMotor[0] = dcMotor_init(PWM_3A, GPIO_Number_33);
+    HandleRobot.HandleMotor[1] = dcMotor_init(PWM_1A, GPIO_Number_3);
+    HandleRobot.HandleMotor[2] = dcMotor_init(PWM_2A, GPIO_Number_32);
+    HandleRobot.HandleMotor[3] = dcMotor_init(PWM_1B, GPIO_Number_5);
+	#else*/ // Alpha
     HandleRobot.HandleMotor[0] = dcMotor_init(PWM_1A, GPIO_Number_3);
     HandleRobot.HandleMotor[1] = dcMotor_init(PWM_1B, GPIO_Number_5);
     HandleRobot.HandleMotor[2] = dcMotor_init(PWM_2A, GPIO_Number_32);
     HandleRobot.HandleMotor[3] = dcMotor_init(PWM_3A, GPIO_Number_33);
+//	#endif // BETA
 
-    HandleRobot.HandlePid[0] = pid_init(PID_P, PID_I, PID_D, _IQ(EPWM_TIMER_TBPRD), _IQ(0));
-    HandleRobot.HandlePid[1] = pid_init(PID_P, PID_I, PID_D, _IQ(EPWM_TIMER_TBPRD), _IQ(0));
-    HandleRobot.HandlePid[2] = pid_init(PID_P, PID_I, PID_D, _IQ(EPWM_TIMER_TBPRD), _IQ(0));
-    HandleRobot.HandlePid[3] = pid_init(PID_P, PID_I, PID_D, _IQ(EPWM_TIMER_TBPRD), _IQ(0));
+    HandleRobot.HandlePid[0] = pid_init(PID_P0, PID_I0, PID_D0, _IQ(EPWM_TIMER_TBPRD), _IQ(0));
+    HandleRobot.HandlePid[1] = pid_init(PID_P1, PID_I1, PID_D1, _IQ(EPWM_TIMER_TBPRD), _IQ(0));
+    HandleRobot.HandlePid[2] = pid_init(PID_P2, PID_I2, PID_D2, _IQ(EPWM_TIMER_TBPRD), _IQ(0));
+    HandleRobot.HandlePid[3] = pid_init(PID_P3, PID_I3, PID_D3, _IQ(EPWM_TIMER_TBPRD), _IQ(0));
 
     HandleRobot.HandlePid[0].term.Ref = _IQ(0);
     HandleRobot.HandlePid[1].term.Ref = _IQ(0);
@@ -167,12 +174,20 @@ typedef enum {
 
 printer_states printerState = NO_PRINT;
 //This function is executed every 10 ms
+int total_ticks = 0;
 void Round_Robin(){
 
 	//***Captor read***  (Read captor first for stability)
 	quad_readCounters(&HandleRobot.HandleQuad[0]);
 	quad_readCounters(&HandleRobot.HandleQuad[1]);
+	total_ticks += HandleRobot.HandleQuad[0].Count0;
 
+	/*System_printf("tick = %d \r\n",
+			total_ticks);
+	System_printf(" distance = %f\r\n",
+			_IQtoF(HandleRobot.robotParam.speedFactor) * (float)(total_ticks) * 0.01);
+			//_IQtoF(_IQmpy(_IQ(total_ticks),_IQmpy(HandleRobot.robotParam.speedFactor, _IQ(ENCODER_PPR) ))));
+	*/
 	/*System_printf("x=%f y=%f theta=%f\r\n",HandleRobot.robotParam.XVelocityCommand.floating
 									  ,HandleRobot.robotParam.YVelocityCommand.floating
 									  ,HandleRobot.robotParam.ThetaVelocityCommand.floating);*/
@@ -181,8 +196,8 @@ void Round_Robin(){
 	_iq command = _IQ(0);
 	if(round_robin_count < 200)
 		command = _IQ(0.0);
-	else if(round_robin_count < 200 + 1500)
-			command = _IQ(1);
+	else if(round_robin_count < 200 + 200)
+			command = _IQ(0.5);
 	else{
 		command = _IQ(0);
 		dcMotor_setPWM(&HandleRobot.HandleMotor[0], EPWM_BRAKE);
@@ -223,12 +238,12 @@ void Round_Robin(){
 				_IQtoF(_IQabs(HandleRobot.HandleQuad[1].wheelVelocity[1])));
 #else //close loop
 		if(round_robin_count < 2){
-			System_printf("P%4.f I%4.f D%4.f\r\n", _IQtoF(PID_P)
-												 , _IQtoF(PID_I)
-												 , _IQtoF(PID_D));
+			System_printf("P%4.f I%4.f D%4.f\r\n", _IQtoF(PID_P0)
+												 , _IQtoF(PID_I0)
+												 , _IQtoF(PID_D0));
 
 			System_flush();
-			System_printf("Consigne0, PID_out0, wheel0_speed(m/s)\n\r");
+			System_printf("Consigne0, Command0, wheel0_speed(m/s)...\n\r");
 			System_flush();
 		}
 
@@ -269,7 +284,7 @@ void Round_Robin(){
 
 	//***Unpack***
 	if(newPacket){
-		//System_printf("new packet\r\n");
+		System_printf("new packet\r\n");
 		unpackBuffer(HandleRF.RXPayload);
 	}
 
@@ -418,13 +433,14 @@ void robotParam_init(){
 
 	_iq buf = 0;
 	_iq buf2 = 0;
+	_iq buf3 = 0;
 	_iq op = 0;
 
-	HandleRobot.robotParam.wheelRadius = WHEEL_DIAMETER;
+	HandleRobot.robotParam.wheelDiameter = WHEEL_DIAMETER;
 	HandleRobot.robotParam.roundRobinTime = RRTIME;
 	HandleRobot.robotParam.encoderPPR = ENCODER_PPR;
 	op = ONE_ENCODER_PPR;
-	buf = _IQdiv(HandleRobot.robotParam.wheelRadius, HandleRobot.robotParam.roundRobinTime);
+	buf = _IQdiv(HandleRobot.robotParam.wheelDiameter, HandleRobot.robotParam.roundRobinTime);
 	buf2 = _IQmpy(buf, PI);
 	HandleRobot.robotParam.speedFactor = _IQmpy(buf2, op);
 	HandleRobot.robotParam.XVelocityCommand.floating = _IQ(0);

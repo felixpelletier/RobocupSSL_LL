@@ -58,25 +58,46 @@ typedef _Bool bool_t;
  *------------------------------------------------------------------------------------------------*/
 #ifdef BETA
 
-#define PID_P _IQ(90.0)//start:320 74.21
-#define PID_I _IQ(400.0) //start:915 1134
-#define PID_D _IQ(0.000)
+#define PID_P0 _IQ(1260.0)//start:320 74.21
+#define PID_I0 _IQ(1929.0) //start:915 1134
+#define PID_D0 _IQ(0.000)
 
-static const _iq WHEEL_DIAMETER = _IQ(0.025);//5 cm, but gear divide by two
+#define PID_P1 _IQ(617.7)//start:320 74.21
+#define PID_I1 _IQ(1720.0) //start:915 1134
+#define PID_D1 _IQ(0.000)
+
+#define PID_P2 _IQ(1317.0)//start:320 74.21
+#define PID_I2 _IQ(1993.0) //start:915 1134
+#define PID_D2 _IQ(0.000)
+
+#define PID_P3 _IQ(560.3)//start:320 74.21
+#define PID_I3 _IQ(1631.0) //start:915 1134
+#define PID_D3 _IQ(0.000)
+
+
+// 2048 * 8 ticks per turn
+static const uint32_t ENCODER_PPR = 2048u * 4u;			//encoder pulses
+static const _iq ONE_ENCODER_PPR = _IQ(0.0001220703125);	// 1/ENCODER_PPR = 1/2048
+
+// first gear 16, second 32, thus 2 of ratio
+#define GEAR_RATIO 2.0
+static const _iq WHEEL_DIAMETER = _IQ( 0.05127 / GEAR_RATIO);//0.0556492411467
 #else // Alpha
 
 #define PID_P _IQ(3600)
 #define PID_I _IQ(31.2646)
 #define PID_D _IQ(0.000)
 
+#define GEAR_RATIO 2.0
+
+static const uint32_t ENCODER_PPR = 1020u;			//encoder pulses
+static const _iq ONE_ENCODER_PPR = _IQ(0.0009804);	// 1/ENCODER_PPR = 1/1020
 
 static const _iq WHEEL_DIAMETER = _IQ(0.064);//0.775
-#endif // BETA
+#endif
 
 
 static const _iq RRTIME = _IQ(0.01);		//RoundRobin call time in S
-static const uint32_t ENCODER_PPR = 1020u;			//encoder pulses
-static const _iq ONE_ENCODER_PPR = _IQ(0.0009804);	// 1/ENCODER_PPR = 1/1020
 static const _iq PI = _IQ(3.1415926535897932384626433832795);
 static const _iq MIN_SPEED = _IQ(0.02);
 
@@ -150,7 +171,7 @@ typedef union{
 }converter;
 
 typedef struct robot_param{
-	_iq wheelRadius;
+	_iq wheelDiameter;
 	uint32_t encoderPPR;			//pulse per round
 	_iq roundRobinTime;
 	_iq speedFactor;

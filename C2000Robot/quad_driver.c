@@ -62,11 +62,20 @@ void quad_readCounters(quad_Handle *pQuad){
 	lCount0[1] = SPI_read(HandleRobot.HandleSPI);
 	lCount0[0] = SPI_read(HandleRobot.HandleSPI);
 
+	//Reset
+	//SPI_write_8bits(HandleRobot.HandleSPI, QUAD_CTRL & QUAD_WRITE); //put a 0 on the first
+	//SPI_write_8bits(HandleRobot.HandleSPI, QUAD_RESETCNT0 | QUAD_RESETCNT1 | QUAD_RESETCNT2); //dummy data
+	//while(SPI_getRxFifoStatus(HandleRobot.HandleSPI) < SPI_FifoStatus_2_Words); //wait for two words (STATUS + REG)
+	//SPI_read(HandleRobot.HandleSPI);
+	//SPI_read(HandleRobot.HandleSPI);
+
 	demux_disconnect();
+	quad_WriteRegister( QUAD_CTRL, QUAD_RESETCNT0 | QUAD_RESETCNT1 | QUAD_RESETCNT2,pQuad); //reset counters
+
 	pQuad->Count0 = (lCount0[1] << 8) | lCount0[0];
 	pQuad->Count1 = (lCount1[1] << 8) | lCount1[0];
 
-	quad_WriteRegister( QUAD_CTRL, QUAD_RESETCNT0 | QUAD_RESETCNT1 | QUAD_RESETCNT2,pQuad); //reset counters
+	//quad_WriteRegister( QUAD_CTRL, QUAD_RESETCNT0 | QUAD_RESETCNT1 | QUAD_RESETCNT2,pQuad); //reset counters
 
 	quad_calculateSpeed(pQuad);
 }
