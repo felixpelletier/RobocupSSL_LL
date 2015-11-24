@@ -61,19 +61,15 @@ void quad_readCounters(quad_Handle *pQuad){
 	lCount1[0] = SPI_read(HandleRobot.HandleSPI);
 	lCount0[1] = SPI_read(HandleRobot.HandleSPI);
 	lCount0[0] = SPI_read(HandleRobot.HandleSPI);
-
-	//Reset
-	//SPI_write_8bits(HandleRobot.HandleSPI, QUAD_CTRL & QUAD_WRITE); //put a 0 on the first
-	//SPI_write_8bits(HandleRobot.HandleSPI, QUAD_RESETCNT0 | QUAD_RESETCNT1 | QUAD_RESETCNT2); //dummy data
-	//while(SPI_getRxFifoStatus(HandleRobot.HandleSPI) < SPI_FifoStatus_2_Words); //wait for two words (STATUS + REG)
-	//SPI_read(HandleRobot.HandleSPI);
-	//SPI_read(HandleRobot.HandleSPI);
-
 	demux_disconnect();
-	quad_WriteRegister( QUAD_CTRL, QUAD_RESETCNT0 | QUAD_RESETCNT1 | QUAD_RESETCNT2,pQuad); //reset counters
 
+	// Calculate speed with the delta between the old and new count(handle overflow)
+	int oldCount0 = pQuad->Count0;
+	int oldCount1 = pQuad->Count1;
 	pQuad->Count0 = (lCount0[1] << 8) | lCount0[0];
 	pQuad->Count1 = (lCount1[1] << 8) | lCount1[0];
+	pQuad->deltaCount0 = pQuad->Count0 - oldCount0;
+	pQuad->deltaCount1 = pQuad->Count1 - oldCount1;
 
 	//quad_WriteRegister( QUAD_CTRL, QUAD_RESETCNT0 | QUAD_RESETCNT1 | QUAD_RESETCNT2,pQuad); //reset counters
 
@@ -81,14 +77,17 @@ void quad_readCounters(quad_Handle *pQuad){
 }
 
 void quad_calculateSpeed(quad_Handle *pQuad){
-	_iq lDistance0 = _IQ(pQuad->Count0);
-	_iq lDistance1 = _IQ(pQuad->Count1);
+	_iq lDistance0 = _IQ(pQuad->deltaCount0);
+	_iq lDistance1 = _IQ(pQuad->deltaCount1);
 	pQuad->wheelVelocity[0] = _IQmpy(lDistance0,HandleRobot.robotParam.speedFactor);
 	pQuad->wheelVelocity[1] = _IQmpy(lDistance1,HandleRobot.robotParam.speedFactor);
 }
 
 void quad_displayCounters(quad_Handle *pQuad){
 	System_printf("count0 =%d count1 =%d\n\r",pQuad->Count0,pQuad->Count1);
+}
+void quad_displayDeltaCounters(quad_Handle *pQuad){
+	System_printf("dcount0 =%d dcount1 =%d\n\r",pQuad->deltaCount0,pQuad->deltaCount1);
 }
 
 void quad_displayVelocity(quad_Handle *pQuad){

@@ -16,6 +16,7 @@
 #include "nRF24L01_driver.h"
 #include "quad_driver.h"
 #include "L3GD20_driver.h"
+#include "LSM9DS0_driver.h"
 #include "DCMotor_driver.h"
 #include "arduino_driver.h"
 #include "four_wheel_ctrl.h"
@@ -139,23 +140,20 @@ Void SetUp(){
 
     //math float to int conversion initialisation
     robotParam_init();
-
-    gyro_init(CS_5);
     arduino_Init(CS_3);
+
+    #ifdef BETA
+    imu_init(CS_6, CS_5);
+	#else // Alpha
+    gyro_init(CS_5);
+    #endif
 
 
     /// PWM
-/*	#ifdef BETA
-    HandleRobot.HandleMotor[0] = dcMotor_init(PWM_3A, GPIO_Number_33);
-    HandleRobot.HandleMotor[1] = dcMotor_init(PWM_1A, GPIO_Number_3);
-    HandleRobot.HandleMotor[2] = dcMotor_init(PWM_2A, GPIO_Number_32);
-    HandleRobot.HandleMotor[3] = dcMotor_init(PWM_1B, GPIO_Number_5);
-	#else*/ // Alpha
     HandleRobot.HandleMotor[0] = dcMotor_init(PWM_1A, GPIO_Number_3);
     HandleRobot.HandleMotor[1] = dcMotor_init(PWM_1B, GPIO_Number_5);
     HandleRobot.HandleMotor[2] = dcMotor_init(PWM_2A, GPIO_Number_32);
     HandleRobot.HandleMotor[3] = dcMotor_init(PWM_3A, GPIO_Number_33);
-//	#endif // BETA
 
     HandleRobot.HandlePid[0] = pid_init(PID_P0, PID_I0, PID_D0, _IQ(EPWM_TIMER_TBPRD), _IQ(0));
     HandleRobot.HandlePid[1] = pid_init(PID_P1, PID_I1, PID_D1, _IQ(EPWM_TIMER_TBPRD), _IQ(0));
@@ -237,7 +235,7 @@ void Round_Robin(){
 
 	ADC_forceConversion(HandleRobot.HandleADC , ADC_SocNumber_0);
 	Digital_Result = ADC_readResult(HandleRobot.HandleADC, ADC_ResultNumber_0);
-	System_printf("ADC: %d\r\n", Digital_Result);
+	//System_printf("ADC: %d\r\n", Digital_Result);
 
 	/*System_printf("tick = %d \r\n",
 			total_ticks);
@@ -393,10 +391,10 @@ void Round_Robin(){
 			//quad_displayCounters(&HandleRobot.HandleQuad[1]);
 			//System_printf("\r\n");
 			System_printf("%d, %d, %d, %d\n\r",
-					HandleRobot.HandleQuad[0].Count0,
-					HandleRobot.HandleQuad[0].Count1,
-					HandleRobot.HandleQuad[1].Count0,
-					HandleRobot.HandleQuad[1].Count1
+					HandleRobot.HandleQuad[0].deltaCount0,
+					HandleRobot.HandleQuad[0].deltaCount1,
+					HandleRobot.HandleQuad[1].deltaCount0,
+					HandleRobot.HandleQuad[1].deltaCount1
 			);
 
 			break;
@@ -490,7 +488,6 @@ void robotParam_init(){
 
 	_iq buf = 0;
 	_iq buf2 = 0;
-	_iq buf3 = 0;
 	_iq op = 0;
 
 	HandleRobot.robotParam.wheelDiameter = WHEEL_DIAMETER;

@@ -159,6 +159,8 @@ typedef struct quad_Handle {
 	chip_select structCSNPin;
 	int16_t Count0;
 	int16_t Count1;
+	int16_t deltaCount0;
+	int16_t deltaCount1;
 	_iq wheelVelocity[2];
 }quad_Handle;
 
@@ -200,6 +202,15 @@ typedef struct Demux_Handle {
 	GPIO_Number_e a2;
 	chip_select notConnect_pin;
 }Demux_Handle;
+
+/****************************************************************************
+ * 								IMU
+ ****************************************************************************/
+
+typedef struct LSM9DS0_Handle {
+	chip_select GyroSCpin;
+	chip_select AccSCpin;
+}LSM9DS0_Handle;
 
 /****************************************************************************
  * 								ARDUINO
@@ -279,6 +290,7 @@ typedef struct Robot_Handle {
     quad_Handle HandleQuad[2];
     robot_param robotParam;
     L3GD20_Handle HandleGyro;
+    LSM9DS0_Handle HandleImu;
     arduino_Handle HandleArduino;
     PWM_Handle HandlePwm1;
     PWM_Handle HandlePwm2;
@@ -287,11 +299,13 @@ typedef struct Robot_Handle {
     PID_Handle HandlePid[4];
 } Robot_Handle;
 
+// Global variable!
 extern Robot_Handle HandleRobot;
 
 #define HandleDemux  HandleRobot.HandleDemux
 #define HandleRF  HandleRobot.HandleRF
 #define HandleGyro  HandleRobot.HandleGyro
+#define HandleImu  HandleRobot.HandleImu
 #define HandleArduino  HandleRobot.HandleArduino
 
 //extern Robot_Handle HandleRobot;

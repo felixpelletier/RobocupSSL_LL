@@ -12,6 +12,7 @@
 #include "arduino_driver.h"
 #include "nRF24L01_driver.h"
 #include "L3GD20_driver.h"
+#include "LSM9DS0_driver.h"
 #include "nRF24L01_driver.h"
 #include "DCMotor_driver.h"
 

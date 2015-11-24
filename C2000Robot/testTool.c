@@ -19,12 +19,23 @@ void test_is_SpiDevices_Working_Well(){
 	}
 	System_flush();
 
+
+	#ifdef BETA
+	if(imu_test())
+		System_printf("Imu [OK]\r\n");
+	else{
+		System_printf("Imu [FAIL]\r\n");
+		tested = false;
+	}
+	#else // Alpha
 	if(gyro_test())
 		System_printf("Gyro [OK]\r\n");
 	else{
 		System_printf("Gyro [FAIL]\r\n");
 		tested = false;
 	}
+	#endif
+
 
 	if(quad_test(&HandleRobot.HandleQuad[0]))
 		System_printf("Quad 0 [OK]\r\n");

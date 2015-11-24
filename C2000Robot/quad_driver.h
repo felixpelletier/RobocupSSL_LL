@@ -40,6 +40,7 @@ void quad_readCounters(quad_Handle *pQuad);
 void quad_calculateSpeed(quad_Handle *pQuad);
 
 void quad_displayCounters(quad_Handle *pQuad);
+void quad_displayDeltaCounters(quad_Handle *pQuad);
 void quad_displayVelocity(quad_Handle *pQuad);
 
 bool quad_test(quad_Handle *pQuad);
