@@ -13,6 +13,7 @@
 #include "Serial.h"
 #include "SPI.h"
 #include "pid.h"
+#include "ADCSensorProx.h"
 #include "nRF24L01_driver.h"
 #include "quad_driver.h"
 #include "L3GD20_driver.h"
@@ -37,43 +38,6 @@ volatile Bool isrFlag = FALSE;
  */
 //Robot global variable
 Robot_Handle HandleRobot;
-
-uint16_t Digital_Result =0;
-
-//start ADC
-interrupt void adc_isr(void)
-{
-   //discard ADCRESULT0 as part of the workaround to the 1st sample errata for rev0
-   //Digital_Result = ADC_readResult(HandleRobot.HandleADC, ADC_ResultNumber_0);
-   ADC_clearIntFlag(HandleRobot.HandleADC, ADC_IntNumber_1);   // Clear ADCINT1 flag reinitialize for next SOC
-   PIE_clearInt(HandleRobot.HandlePIE, PIE_GroupNumber_10);// Acknowledge interrupt to PIE
-   return;
-}
-
-void ADC_INIT_Fn()
-{
-	ADC_enableBandGap(HandleRobot.HandleADC);
-	ADC_enableRefBuffers(HandleRobot.HandleADC);
-	ADC_powerUp(HandleRobot.HandleADC);
-	ADC_enable(HandleRobot.HandleADC);
-	ADC_setVoltRefSrc(HandleRobot.HandleADC, ADC_VoltageRefSrc_Int);
-}
-
-void ADC_SETUP_Fn()
-{
-	PIE_registerPieIntHandler(HandleRobot.HandlePIE, PIE_GroupNumber_10, PIE_SubGroupNumber_1, (intVec_t)&adc_isr);
-	PIE_enableAdcInt(HandleRobot.HandlePIE, ADC_IntNumber_1); // Enable ADCINT1 in PIE
-	//Note: Channel ADCINA1  will be double sampled to workaround the ADC 1st sample issue for rev0 silicon errata
-	ADC_setIntPulseGenMode(HandleRobot.HandleADC, ADC_IntPulseGenMode_Prior);               //ADCINT1 trips after AdcResults latch
-	ADC_enableInt(HandleRobot.HandleADC, ADC_IntNumber_1);                                  //Enabled ADCINT1
-	ADC_setIntMode(HandleRobot.HandleADC, ADC_IntNumber_1, ADC_IntMode_ClearFlag);          //Disable ADCINT1 Continuous mode
-	ADC_setIntSrc(HandleRobot.HandleADC, ADC_IntNumber_1, ADC_IntSrc_EOC0);                 //setup EOC0 to trigger ADCINT1 to fire
-	ADC_setSocChanNumber (HandleRobot.HandleADC, ADC_SocNumber_0, ADC_SocChanNumber_A0);    //set SOC0 channel select to ADCINA4
-	ADC_setSocTrigSrc(HandleRobot.HandleADC, ADC_SocNumber_0, ADC_SocTrigSrc_Sw);     //set SOC0 start trigger on EPWM1A, due to round-robin SOC0 converts first then SOC1
-	ADC_setSocSampleWindow(HandleRobot.HandleADC, ADC_SocNumber_0, ADC_SocSampleWindow_7_cycles);   //set SOC0 S/H Window to 7 ADC Clock Cycles, (6 ACQPS plus 1)
-}
-//stop ADC
-
 
 //Set up function executed once before entering OS
 Void SetUp(){
@@ -233,9 +197,10 @@ void Round_Robin(){
 	quad_readCounters(&HandleRobot.HandleQuad[1]);
 	total_ticks += HandleRobot.HandleQuad[0].Count0;
 
-	ADC_forceConversion(HandleRobot.HandleADC , ADC_SocNumber_0);
-	Digital_Result = ADC_readResult(HandleRobot.HandleADC, ADC_ResultNumber_0);
-	//System_printf("ADC: %d\r\n", Digital_Result);
+	if (Prox_isBallClose()){
+		System_printf("EXTERMINATE! \r\n");
+		arduino_WriteRegister(ARDUINO_GPIO_5, ARDUINO_LOW);
+	}
 
 	/*System_printf("tick = %d \r\n",
 			total_ticks);

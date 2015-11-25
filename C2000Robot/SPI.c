@@ -28,7 +28,7 @@ void spi_init(CLK_Handle CLK, SPI_Handle SPI)
     SPI_enableTx(SPI);
     SPI_setClkPolarity (SPI, SPI_ClkPolarity_OutputRisingEdge_InputFallingEdge);
     SPI_setClkPhase (SPI, SPI_ClkPhase_Delayed);
-    SPI_setBaudRate(SPI, SPI_BaudRate_1_MBaud);
+    SPI_setBaudRate(SPI, SPI_BaudRate_500_KBaud);
 
     // Relinquish SPI from Reset
     SPI_disableLoopBack(SPI);

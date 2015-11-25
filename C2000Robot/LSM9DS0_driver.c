@@ -136,9 +136,6 @@ void imu_readZGyro(){
 
 
 int imu_test(){
-	System_printf("g=%x a=%x\r\n",
-			imu_readRegister_G(LSM9DS0_REGISTER_WHO_AM_I_G),
-			imu_readRegister_AM(LSM9DS0_REGISTER_WHO_AM_I_XM));
 	return imu_readRegister_G(LSM9DS0_REGISTER_WHO_AM_I_G) == LSM9DS0_ID_G &&
 			imu_readRegister_AM(LSM9DS0_REGISTER_WHO_AM_I_XM) == LSM9DS0_ID_XM;
 
