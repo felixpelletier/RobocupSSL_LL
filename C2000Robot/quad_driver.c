@@ -79,8 +79,22 @@ void quad_readCounters(quad_Handle *pQuad){
 void quad_calculateSpeed(quad_Handle *pQuad){
 	_iq lDistance0 = _IQ(pQuad->deltaCount0);
 	_iq lDistance1 = _IQ(pQuad->deltaCount1);
-	pQuad->wheelVelocity[0] = _IQmpy(lDistance0,HandleRobot.robotParam.speedFactor);
-	pQuad->wheelVelocity[1] = _IQmpy(lDistance1,HandleRobot.robotParam.speedFactor);
+
+	pQuad->velocityBuffer0[pQuad->bufferId[0]++] = _IQmpy(lDistance0,HandleRobot.robotParam.speedFactor);
+	pQuad->velocityBuffer1[pQuad->bufferId[1]++] = _IQmpy(lDistance1,HandleRobot.robotParam.speedFactor);
+
+	if (pQuad->bufferId[0] >= VELOCITY_BUFFER_LEN)
+		pQuad->bufferId[0] = 0;
+	if (pQuad->bufferId[1] >= VELOCITY_BUFFER_LEN)
+		pQuad->bufferId[1] = 0;
+
+	int i;
+	pQuad->wheelVelocity[0] = 0;
+	pQuad->wheelVelocity[1] = 0;
+	for (i = 0; i < VELOCITY_BUFFER_LEN; i++) {
+		pQuad->wheelVelocity[0] += _IQdiv(pQuad->velocityBuffer0[i], _IQ(VELOCITY_BUFFER_LEN));
+		pQuad->wheelVelocity[1] += _IQdiv(pQuad->velocityBuffer1[i], _IQ(VELOCITY_BUFFER_LEN));
+	}
 }
 
 void quad_displayCounters(quad_Handle *pQuad){

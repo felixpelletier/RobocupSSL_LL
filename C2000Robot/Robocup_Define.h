@@ -58,21 +58,23 @@ typedef _Bool bool_t;
  *------------------------------------------------------------------------------------------------*/
 #ifdef BETA
 
-#define PID_P0 _IQ(1260.0)//start:320 74.21
-#define PID_I0 _IQ(1929.0) //start:915 1134
+#define PID_P0 _IQ(315.6)//start:320 74.21
+#define PID_I0 _IQ(664.4) //start:915 1134
 #define PID_D0 _IQ(0.000)
 
-#define PID_P1 _IQ(617.7)//start:320 74.21
-#define PID_I1 _IQ(1720.0) //start:915 1134
+#define PID_P1 _IQ(281.5)//start:320 74.21
+#define PID_I1 _IQ(624.5) //start:915 1134
 #define PID_D1 _IQ(0.000)
 
-#define PID_P2 _IQ(1317.0)//start:320 74.21
-#define PID_I2 _IQ(1993.0) //start:915 1134
+#define PID_P2 _IQ(332.4)//start:320 74.21
+#define PID_I2 _IQ(691.0) //start:915 1134
 #define PID_D2 _IQ(0.000)
 
-#define PID_P3 _IQ(560.3)//start:320 74.21
-#define PID_I3 _IQ(1631.0) //start:915 1134
+#define PID_P3 _IQ(273.6)//start:320 74.21
+#define PID_I3 _IQ(622.9) //start:915 1134
 #define PID_D3 _IQ(0.000)
+
+#define VELOCITY_BUFFER_LEN 1 //Moyenne sur les lectures d'encodeurs
 
 
 // 2048 * 8 ticks per turn
@@ -162,6 +164,10 @@ typedef struct quad_Handle {
 	int16_t deltaCount0;
 	int16_t deltaCount1;
 	_iq wheelVelocity[2];
+	_iq velocityBuffer0[VELOCITY_BUFFER_LEN];
+	_iq velocityBuffer1[VELOCITY_BUFFER_LEN];
+	uint16_t bufferId[2];
+
 }quad_Handle;
 
 /****************************************************************************

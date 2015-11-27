@@ -6,8 +6,8 @@
 
 #define RELEASE   //RELEASE or DEBUG
 #define HARDWARE_TEST
-//#define PID_TEST
-#define OPEN_LOOP
+#define PID_TEST
+//#define OPEN_LOOP
 
 #include "Robocup_Define.h"
 #include "Serial.h"
@@ -59,6 +59,18 @@ Void SetUp(){
     HandleRobot.HandlePwm3 = PWM_init((void *)PWM_ePWM3_BASE_ADDR, sizeof(PWM_Obj));
      HandleRobot.HandleADC = ADC_init((void *)ADC_BASE_ADDR, sizeof(ADC_Obj));
      HandleRobot.HandlePIE = PIE_init((void *)PIE_BASE_ADDR, sizeof(PIE_Obj));
+
+     HandleRobot.HandleQuad[0].bufferId[0] = 0;
+	 HandleRobot.HandleQuad[0].bufferId[1] = 0;
+	 HandleRobot.HandleQuad[1].bufferId[0] = 0;
+	 HandleRobot.HandleQuad[1].bufferId[1] = 0;
+     int i;
+     for(i = 0; i < VELOCITY_BUFFER_LEN; i++) {
+    	 HandleRobot.HandleQuad[0].velocityBuffer0[i] = 0;
+    	 HandleRobot.HandleQuad[0].velocityBuffer1[i] = 0;
+    	 HandleRobot.HandleQuad[1].velocityBuffer0[i] = 0;
+    	 HandleRobot.HandleQuad[1].velocityBuffer1[i] = 0;
+     }
 
 
      // ADC START
@@ -198,7 +210,7 @@ void Round_Robin(){
 	total_ticks += HandleRobot.HandleQuad[0].Count0;
 
 	if (Prox_isBallClose()){
-		System_printf("EXTERMINATE! \r\n");
+		//System_printf("EXTERMINATE! \r\n");
 		arduino_WriteRegister(ARDUINO_GPIO_5, ARDUINO_LOW);
 	}
 
@@ -242,10 +254,10 @@ void Round_Robin(){
 
 		float consigne = _IQtoF(command) *  1500.0;
 
-		dcMotor_updatePWM(&HandleRobot.HandleMotor[0], _IQint(_IQ(0)));
-		dcMotor_updatePWM(&HandleRobot.HandleMotor[1], _IQint(_IQ(consigne)));
-		dcMotor_updatePWM(&HandleRobot.HandleMotor[2], _IQint(_IQ(0)));
-		dcMotor_updatePWM(&HandleRobot.HandleMotor[3], _IQint(_IQ(consigne)));
+		dcMotor_updatePWM(&HandleRobot.HandleMotor[0], _IQint(_IQ(consigne)));
+		dcMotor_updatePWM(&HandleRobot.HandleMotor[1], _IQint(_IQ(0)));
+		dcMotor_updatePWM(&HandleRobot.HandleMotor[2], _IQint(_IQ(consigne)));
+		dcMotor_updatePWM(&HandleRobot.HandleMotor[3], _IQint(_IQ(0)));
 
 		System_printf("%f,%f,%f,%f,%f,%f,%f,%f\n\r",
 				consigne,
