@@ -6,7 +6,7 @@
 
 #define RELEASE   //RELEASE or DEBUG
 #define HARDWARE_TEST
-#define PID_TEST
+//#define PID_TEST
 //#define OPEN_LOOP
 
 #include "Robocup_Define.h"
@@ -211,6 +211,9 @@ void Round_Robin(){
 
 	if (Prox_isBallClose()){
 		//System_printf("EXTERMINATE! \r\n");
+		arduino_WriteRegister(ARDUINO_GPIO_5, ARDUINO_HIGH);
+	}
+	else{
 		arduino_WriteRegister(ARDUINO_GPIO_5, ARDUINO_LOW);
 	}
 
@@ -226,9 +229,9 @@ void Round_Robin(){
 #ifdef PID_TEST
 	static uint16_t round_robin_count = 0;
 	_iq command = _IQ(0);
-	if(round_robin_count < 200)
+	if(round_robin_count < 1000)
 		command = _IQ(0.0);
-	else if(round_robin_count < 200 + 200)
+	else if(round_robin_count < 1000 + 1000)
 			command = _IQ(0.5);
 	else{
 		command = _IQ(0);
@@ -259,6 +262,12 @@ void Round_Robin(){
 		dcMotor_updatePWM(&HandleRobot.HandleMotor[2], _IQint(_IQ(consigne)));
 		dcMotor_updatePWM(&HandleRobot.HandleMotor[3], _IQint(_IQ(0)));
 
+		System_printf("%f,%f,%f\n\r",
+				consigne,
+				_IQtoF(_IQabs(HandleRobot.HandleQuad[0].wheelVelocity[0])),
+				_IQtoF(_IQabs(HandleRobot.HandleQuad[1].wheelVelocity[0])));
+		System_flush();
+		/*
 		System_printf("%f,%f,%f,%f,%f,%f,%f,%f\n\r",
 				consigne,
 				_IQtoF(_IQabs(HandleRobot.HandleQuad[0].wheelVelocity[0])),
@@ -267,7 +276,7 @@ void Round_Robin(){
 				consigne,
 				_IQtoF(_IQabs(HandleRobot.HandleQuad[1].wheelVelocity[0])),
 				consigne,
-				_IQtoF(_IQabs(HandleRobot.HandleQuad[1].wheelVelocity[1])));
+				_IQtoF(_IQabs(HandleRobot.HandleQuad[1].wheelVelocity[1])));*/
 #else //close loop
 		if(round_robin_count < 2){
 			System_printf("P%4.f I%4.f D%4.f\r\n", _IQtoF(PID_P0)

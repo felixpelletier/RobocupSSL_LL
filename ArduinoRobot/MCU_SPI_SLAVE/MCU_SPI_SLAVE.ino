@@ -8,8 +8,11 @@
 #include <Wire.h>
 #include <Adafruit_INA219.h>
 
-const int	ARDUINO_BAT_MONITOR_1       =      0xA1;
-const int	ARDUINO_BAT_MONITOR_2       =      0xA2;
+// Read command
+const int	      ARDUINO_BAT_MONITOR_1       =    0x01;
+const int	      ARDUINO_BAT_MONITOR_2       =    0x02;
+const int       ARDUINO_RECALL              =    0x10;
+// Writing command
 const int       ARDUINO_GPIO_2              =	   0xB2;
 const int       ARDUINO_GPIO_3              =	   0xB3;
 const int       ARDUINO_GPIO_4              =	   0xB4;
@@ -18,11 +21,12 @@ const int       ARDUINO_GPIO_6              =	   0xB6;
 const int       ARDUINO_GPIO_7              =	   0xB7;
 const int       ARDUINO_GPIO_8              =	   0xB8;
 const int       ARDUINO_GPIO_9              =	   0xB9;
-const int       ARDUINO_RECALL              =	   0xC0;
 
 const int       ARDUINO_LOW                 =	   0;
 const int       ARDUINO_HIGH                =	   1;
 const int       ARDUINO_RECALL_MESSAGE      =	   0xEE;
+
+const int       ARDUINO_WRITE_FLAG          =    0x80;
 
 
 const int greenPin = 8; 
@@ -40,8 +44,31 @@ float batP16;
 float MIN = 0;
 float MAX = 4.0;
 
+enum wait_state_t {
+  WAITING_COMMAND,
+  WAITING_VALUE
+};
+enum spi_state_t {
+  READ_COMMAND,
+  WRITE_COMMAND
+};
+
+spi_state_t  stateSPICommand = READ_COMMAND;
+wait_state_t  stateSPIWrite = WAITING_COMMAND;
+wait_state_t  stateSPIRead = WAITING_COMMAND;
+byte  command = 0;
+
+
 boolean gotAReg = false;
 boolean gotAValue = false;
+
+#define BUFFER_SIZE 256
+byte rev_buffer[BUFFER_SIZE];
+
+unsigned int index_write = 0;
+unsigned int index_read = 0;
+
+
 
 // Arduino Promini communication SPI:
 /// 10 (SS), 11 (MOSI), 12 (MISO), 13 (SCK)
@@ -83,7 +110,7 @@ void setup (void)
   digitalWrite(2, LOW);
   digitalWrite(3, LOW);
   digitalWrite(4, LOW);
-  digitalWrite(5, HIGH); // Dribbler
+  digitalWrite(5, LOW); // Dribbler
   digitalWrite(6, LOW);
   digitalWrite(7, HIGH);
   digitalWrite(8, LOW);
@@ -105,46 +132,49 @@ void setup (void)
   monV16.begin();
 }  
 
+void addToCircBuffer(byte c){
+  rev_buffer[index_write] = c;
+  index_write++;
+  index_write %= BUFFER_SIZE;
+}
+
 // Call for each Master request
 ISR (SPI_STC_vect){
   // Master request (SPDR = Registre hardware SPI)
-  byte c = SPDR;  
-  // We check that this is not the start of a request
-  if (!gotAValue){
-    if(!gotAReg){
-      reg = c;
-      gotAReg = true;
-    }
-    else{
-      value = c;
-	
-       // Register that change the GPIO state start by "0xBX"
-      if(reg & 0xF0 == 0xB0){
-	      if(reg == ARDUINO_GPIO_2)
-		updateGPIO(2, value);
-	      else if(reg == ARDUINO_GPIO_3)
-		updateGPIO(3, value);
-	      else if(reg == ARDUINO_GPIO_4)
-		updateGPIO(4, value);
-	      else if(reg == ARDUINO_GPIO_5)
-		updateGPIO(5, value);
-	      else if(reg == ARDUINO_GPIO_6)
-		updateGPIO(6, value);
-	      else if(reg == ARDUINO_GPIO_7)
-		updateGPIO(7, value);
-	      else if(reg == ARDUINO_GPIO_8)
-		updateGPIO(8, value);
-	      else if(reg == ARDUINO_GPIO_9)
-		updateGPIO(9, value);
+  byte c = SPDR;
+  switch(stateSPIRead){
+    // First Byte
+    case WAITING_COMMAND:
+      stateSPIRead = WAITING_VALUE;
+      if(c & ARDUINO_WRITE_FLAG){
+        addToCircBuffer(c);
+        stateSPICommand = WRITE_COMMAND;
       }
-      else if(reg == ARDUINO_BAT_MONITOR_1)
-        SPDR = batV7;
-      else if(reg == ARDUINO_RECALL)
-          SPDR = ARDUINO_RECALL_MESSAGE;
-      gotAValue = true;
-    } 
-    //SPDR = 0xE5;
+      else{
+        stateSPICommand = READ_COMMAND;
+        if(command == ARDUINO_BAT_MONITOR_1)
+            SPDR = batV7;
+        else if(command == ARDUINO_RECALL)
+            SPDR = ARDUINO_RECALL_MESSAGE;
+      }
+      break;
+    // Second Byte
+    case WAITING_VALUE:
+      stateSPIRead = WAITING_COMMAND;
+      if(stateSPICommand == WRITE_COMMAND){
+        addToCircBuffer(c);
+      }
+      else{
+        // Dummy must be zero
+        if(c != 0){
+          stateSPIRead = WAITING_VALUE;
+        }
+        else{
+          SPDR = 0;
+        }
+      }
   }
+
 }  // end of interrupt routine SPI_STC_vect
 
 void updateGPIO(int n, int state){
@@ -167,10 +197,11 @@ void loop (void){
   batV16 = monV16.getBusVoltage_V() + (monV16.getShuntVoltage_mV() / 1000);
   batP7 = batV7 * monV7.getCurrent_mA();
   batP16 = batV16 * monV16.getCurrent_mA();
+  //Serial.print("I:");Serial.println(monV16.getCurrent_mA());
   
-  Serial.print(batV7);
-  Serial.print(" ");
-  Serial.println(batV16);
+  //Serial.print(batV7);
+  //Serial.print(" ");
+  //Serial.println(batV16);
   if(batV7 > 6 && batV16 > 12 && batV16 < 30)//Vérifie que la batterie a une tension suppérieure à 12 V
     setColor(0, 170, 0); // Green
   else if(batV16 <= 12){  //Vérifie que la batterie a une tension suppérieure à 12 V
@@ -179,35 +210,40 @@ void loop (void){
   }
   else
     setColor(170, 0, 0); // Red
-    
 
-/*
-  Serial.print("BatV7: v=");
-  Serial.print(batV7);
-  Serial.print(" BatV16: v=");
-  Serial.println(batV16);
-  Serial.print("BatV7: p=");
-  Serial.print(batP7);
-  Serial.print(" BatV16: I=");
-  Serial.print(monV16.getCurrent_mA());
-  Serial.print(" BatV16: p=");
-  Serial.println(batP16);
-*/
-  if (gotAValue && gotAReg){
 
-    Serial.print(reg);
-    Serial.print("-");
-    if(reg == ARDUINO_GPIO_4){
-      Serial.print("-");
+  /*********************************
+   *  Checking for spi command     *
+  **********************************/
+  while(index_read != index_write){
+    byte c = rev_buffer[index_read];
+    index_read++;
+    index_read %= BUFFER_SIZE;
+    // We check that this is not the start of a request
+    switch(stateSPIWrite){
+      case WAITING_COMMAND:
+        reg = c;
+        stateSPIWrite = WAITING_VALUE;
+        break;
+      case WAITING_VALUE:
+        value = c;
+        // GPIO start with 0xBy
+        if(reg == 0xB5){
+          analogWrite(5, (value == 0) ? 0: 64); // 25% of pwm for dribbler
+        }
+        else if((reg & 0xF0) == 0xB0){
+           updateGPIO((reg & 0x0F), value);
+        }
+        else // Invalid command, thus we try the current value has a command
+        {
+          reg = value;
+          stateSPIWrite = WAITING_VALUE;
+          continue;
+        }
+        stateSPIWrite = WAITING_COMMAND;
     }
-    Serial.println(value);
-    reg = 0;
-    value = 0;
-    gotAReg = false;
-    gotAValue = false;
-  }  // end of flag set
-  
-
+    
+  }
 }  // end of loop
 
 
