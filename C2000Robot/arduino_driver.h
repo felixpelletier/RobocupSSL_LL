@@ -32,6 +32,8 @@ static const uint16_t ARDUINO_RECALL_MESSAGE = 0xEEu;
 static const uint16_t ARDUINO_WRITE_FLAG 	 = 0x80u;
 
 
+static const uint16_t cmdActivateDribbler    = 0x22u;
+static const uint16_t cmdDeactivateDribbler  = 0x33u;
 
 /*******************************************************************************
  * User Interface Function
@@ -40,6 +42,8 @@ static const uint16_t ARDUINO_WRITE_FLAG 	 = 0x80u;
 void arduino_Init(chip_select CePin);
 uint16_t arduino_ReadRegister(uint16_t Reg);
 void arduino_WriteRegister(uint16_t Reg, uint16_t Value);
+void arduino_ActivateDribbler();
+void arduino_DeactivateDribbler();
 int arduino_Test();
 
 

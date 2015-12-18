@@ -210,11 +210,14 @@ void Round_Robin(){
 	total_ticks += HandleRobot.HandleQuad[0].Count0;
 
 	if (Prox_isBallClose()){
-		//System_printf("EXTERMINATE! \r\n");
-		arduino_WriteRegister(ARDUINO_GPIO_5, ARDUINO_HIGH);
+		System_printf("EXTERMINATE! \r\n");
+		//arduino_WriteRegister(ARDUINO_GPIO_5, ARDUINO_HIGH);
+		arduino_ActivateDribbler();
 	}
 	else{
-		arduino_WriteRegister(ARDUINO_GPIO_5, ARDUINO_LOW);
+		System_printf("Save all humans! \r\n");
+		//arduino_WriteRegister(ARDUINO_GPIO_5, ARDUINO_LOW);
+		arduino_DeactivateDribbler();
 	}
 
 	/*System_printf("tick = %d \r\n",
