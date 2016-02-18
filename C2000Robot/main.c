@@ -13,6 +13,7 @@
 #include "Serial.h"
 #include "SPI.h"
 #include "pid.h"
+#include "kicker.h"
 #include "ADCSensorProx.h"
 #include "nRF24L01_driver.h"
 #include "quad_driver.h"
@@ -118,6 +119,9 @@ Void SetUp(){
     robotParam_init();
     arduino_Init(CS_3);
 
+
+    kicker_init(GPIO_Number_34);
+
     #ifdef BETA
     imu_init(CS_6, CS_5);
 	#else // Alpha
@@ -200,7 +204,7 @@ typedef enum {
 }printer_states;
 
 printer_states printerState = NO_PRINT;
-//This function is executed every 10 ms
+//This function is executed every 2 ms
 int total_ticks = 0;
 void Round_Robin(){
 
@@ -210,16 +214,17 @@ void Round_Robin(){
 	total_ticks += HandleRobot.HandleQuad[0].Count0;
 
 	if (Prox_isBallClose()){
-		System_printf("EXTERMINATE! \r\n");
+		//System_printf("EXTERMINATE! \r\n");
 		//arduino_WriteRegister(ARDUINO_GPIO_5, ARDUINO_HIGH);
-		arduino_ActivateDribbler();
+		//arduino_ActivateDribbler();
 	}
 	else{
-		System_printf("Save all humans! \r\n");
+		//System_printf("Save all humans! \r\n");
 		//arduino_WriteRegister(ARDUINO_GPIO_5, ARDUINO_LOW);
-		arduino_DeactivateDribbler();
+		//arduino_DeactivateDribbler();
 	}
 
+	kicker_update();
 	/*System_printf("tick = %d \r\n",
 			total_ticks);
 	System_printf(" distance = %f\r\n",
@@ -232,10 +237,28 @@ void Round_Robin(){
 #ifdef PID_TEST
 	static uint16_t round_robin_count = 0;
 	_iq command = _IQ(0);
-	if(round_robin_count < 1000)
+	_iq consigne1 = _IQ(0);
+	_iq consigne2 = _IQ(0);
+	if(round_robin_count < 1000) {
 		command = _IQ(0.0);
-	else if(round_robin_count < 1000 + 1000)
-			command = _IQ(0.5);
+		consigne1 = _IQ(0.0);
+		consigne2 = _IQ(0.0);
+	}
+	else if(round_robin_count < 1000 + 500) {
+		command = _IQ(0.5);
+		consigne1 = _IQ(0.43);
+		consigne2 = _IQ(0.43);
+	}
+	else if(round_robin_count < 1000 + 750) {
+		command = _IQ(0.5);
+		consigne1 = _IQ(0.43);
+		consigne2 = _IQ(0.45);
+	}
+	else if(round_robin_count < 1000 + 1000) {
+		command = _IQ(0.5);
+		consigne1 = _IQ(0.43);
+		consigne2 = _IQ(0.40);
+	}
 	else{
 		command = _IQ(0);
 		dcMotor_setPWM(&HandleRobot.HandleMotor[0], EPWM_BRAKE);
@@ -258,17 +281,22 @@ void Round_Robin(){
 			System_printf("Four_wheel_out * 1500, first_wheel_speed(m/s)\n\r");
 		}
 
-		float consigne = _IQtoF(command) *  1500.0;
+		float consigne1_pwm = _IQtoF(consigne1) *  1500.0;
+		float consigne2_pwm = _IQtoF(consigne2) *  1500.0;
 
-		dcMotor_updatePWM(&HandleRobot.HandleMotor[0], _IQint(_IQ(consigne)));
-		dcMotor_updatePWM(&HandleRobot.HandleMotor[1], _IQint(_IQ(0)));
-		dcMotor_updatePWM(&HandleRobot.HandleMotor[2], _IQint(_IQ(consigne)));
-		dcMotor_updatePWM(&HandleRobot.HandleMotor[3], _IQint(_IQ(0)));
+		dcMotor_updatePWM(&HandleRobot.HandleMotor[0], _IQint(_IQ(0)));
+		dcMotor_updatePWM(&HandleRobot.HandleMotor[1], _IQint(_IQ(consigne1_pwm)));
+		dcMotor_updatePWM(&HandleRobot.HandleMotor[2], _IQint(_IQ(0)));
+		dcMotor_updatePWM(&HandleRobot.HandleMotor[3], _IQint(_IQ(consigne2_pwm)));
 
-		System_printf("%f,%f,%f\n\r",
-				consigne,
-				_IQtoF(_IQabs(HandleRobot.HandleQuad[0].wheelVelocity[0])),
-				_IQtoF(_IQabs(HandleRobot.HandleQuad[1].wheelVelocity[0])));
+		System_printf("%f,%f,%d,%d\n\r",
+				consigne1_pwm,
+				consigne2_pwm,
+				_IQtoF(_IQabs(HandleRobot.HandleQuad[0].wheelVelocity[1])),
+				_IQtoF(_IQabs(HandleRobot.HandleQuad[1].wheelVelocity[1]))
+				//HandleRobot.HandleQuad[0].Count1,
+				//HandleRobot.HandleQuad[1].Count1
+				);
 		System_flush();
 		/*
 		System_printf("%f,%f,%f,%f,%f,%f,%f,%f\n\r",
@@ -405,6 +433,7 @@ void Round_Robin(){
 
 #endif // PID_TEST
 
+	System_flush();
 }
 
 //This function is executed when roundRobin is not

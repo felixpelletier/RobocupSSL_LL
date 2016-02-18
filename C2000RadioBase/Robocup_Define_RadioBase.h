@@ -57,7 +57,7 @@ typedef _Bool bool_t;
  --------------------------------------------------------------------------------------------------*/
 #define NUMBER_OF_PLAYER 6
 #define PLAYER_BUFFER_SIZE 15
-#define CIRCULARBUFFER_SIZE 512
+#define CIRCULARBUFFER_SIZE 1024
 
 /*------------------------------------------------------------------------------------------------
  * 	 IQ math

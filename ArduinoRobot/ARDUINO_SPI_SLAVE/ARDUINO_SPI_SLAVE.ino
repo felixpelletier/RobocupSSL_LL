@@ -146,7 +146,7 @@ void setup (void)
   digitalWrite(3, LOW);
   digitalWrite(4, LOW);
   digitalWrite(5, LOW); // Dribbler
-  digitalWrite(6, LOW);
+  digitalWrite(6, HIGH); // Charger Capacitor
   digitalWrite(7, HIGH);
   digitalWrite(8, LOW);
   digitalWrite(9, LOW);
@@ -164,6 +164,7 @@ void setup (void)
   // Initialize SPI Slave.
   SlaveInit();
   Serial.println("Slave Initialized");
+
 }  
 
 void updateGPIO(int n, int state){
@@ -175,7 +176,12 @@ void updateGPIO(int n, int state){
     Serial.println("Error");
 }
 
+
 void loop (void){
+  //digitalWrite(6, LOW); // Charger Capacitor
+  //delay(1000);
+  //digitalWrite(6, HIGH); // Charger Capacitor
+  //delay(1000);
 
 
 

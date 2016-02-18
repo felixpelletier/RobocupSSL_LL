@@ -9,8 +9,10 @@
 #define RADIO_UNPACKER_H_
 
 #include "Robocup_Define.h"
+#include "kicker.h"
 
 void unpackBuffer(uint8_t buffer[PLAYER_BUFFER_SIZE]);
 void setVelocityCommand(uint8_t buffer[12]);
+void kickCommand(uint8_t buffer[12]);
 
 #endif /* RADIO_UNPACKER_H_ */

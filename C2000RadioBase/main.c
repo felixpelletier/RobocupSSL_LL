@@ -181,12 +181,12 @@ Void Idle(){
 }
 
 Void sci_rx_interupt(){
-	int i;
-	for(i=0;i<2;++i){
-		uint16_t byte = SCI_getData(HandleRobot.HandleSCI);
-		CB_write(&HandleRobot.HandleCB, byte);
-		//System_printf("0x%x", byte);
-	}
+	// Unroll for faster write
+	uint16_t byte = SCI_getData(HandleRobot.HandleSCI);
+	CB_write(&HandleRobot.HandleCB, byte);
+	byte = SCI_getData(HandleRobot.HandleSCI);
+	CB_write(&HandleRobot.HandleCB, byte);
+
 	if(SCI_RxOverflow(HandleRobot.HandleSCI)){
 		SCI_resetRxFifo(HandleRobot.HandleSCI);
 		SCI_clearRxFifoOvf(HandleRobot.HandleSCI);

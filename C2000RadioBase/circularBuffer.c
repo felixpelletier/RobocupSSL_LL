@@ -20,21 +20,7 @@ CB_Handle CB_init(){
 	return cbHandle;
 }
 
-bool CB_write(CB_Handle *circularBuffer,uint16_t pByte){
-	if((circularBuffer->dataBufferCursorWrite + 1) % CIRCULARBUFFER_SIZE == circularBuffer->dataBufferCursorRead)
-	{
-		System_printf("\n\rOverflow");
-		return false;
-	}
-	else{
-		circularBuffer->dataBuffer[circularBuffer->dataBufferCursorWrite] = pByte;
-		circularBuffer->dataBufferCursorWrite =
-				(circularBuffer->dataBufferCursorWrite + 1) % CIRCULARBUFFER_SIZE;
-		//System_printf("\n\r%d",circularBuffer->dataBufferCursorWrite);
-		//System_printf("%x", pByte);
-		return true;
-	}
-}
+
 
 bool CB_read(CB_Handle *circularBuffer, uint16_t *pByte){
 	if(circularBuffer->dataBufferCursorWrite == circularBuffer->dataBufferCursorRead){

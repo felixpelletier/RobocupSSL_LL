@@ -1,6 +1,6 @@
 /*
  * quad_driver.c
- *
+ * for IC-MDTSSOP20
  *  Created on: 2013-11-08
  *      Author: Mathieu Garon
  */
@@ -14,6 +14,10 @@ quad_Handle quad_init(chip_select pCSNPin){
 	lHandle.structCSNPin = pCSNPin;
     quad_WriteRegister(QUAD_CONFIG0, 0x07, &lHandle);  //counter0 = 16 bits and counter1 = 16 bit (no counter2)
     quad_WriteRegister(QUAD_CONFIG1, 0x80, &lHandle);  // counter TTL
+
+    // Make a first read so the first speed is not some big jump in speed
+    quad_readCounters(&lHandle);
+
     return lHandle;
 }
 

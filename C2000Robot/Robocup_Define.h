@@ -58,23 +58,23 @@ typedef _Bool bool_t;
  *------------------------------------------------------------------------------------------------*/
 #ifdef BETA
 
-#define PID_P0 _IQ(252.9)//start:320 74.21
-#define PID_I0 _IQ(835.2) //start:915 1134
+#define PID_P0 _IQ(127.0)//start:320 74.21
+#define PID_I0 _IQ(2.5) //start:915 1134
 #define PID_D0 _IQ(0.000)
 
-#define PID_P1 _IQ(213.5)//start:320 74.21
-#define PID_I1 _IQ(715.4) //start:915 1134
+#define PID_P1 _IQ(153.7)//start:320 74.21
+#define PID_I1 _IQ(2.46) //start:915 1134
 #define PID_D1 _IQ(0.000)
 
-#define PID_P2 _IQ(273.5)//start:320 74.21
-#define PID_I2 _IQ(859.9) //start:915 1134
+#define PID_P2 _IQ(139.7)//start:320 74.21
+#define PID_I2 _IQ(2.62) //start:915 1134
 #define PID_D2 _IQ(0.000)
 
-#define PID_P3 _IQ(206.6)//start:320 74.21
-#define PID_I3 _IQ(700) //start:915 1134
+#define PID_P3 _IQ(135.5)//start:320 74.21
+#define PID_I3 _IQ(2.36)//start:915 1134
 #define PID_D3 _IQ(0.000)
 
-#define VELOCITY_BUFFER_LEN 1 //Moyenne sur les lectures d'encodeurs
+#define VELOCITY_BUFFER_LEN 20 //Moyenne sur les lectures d'encodeurs
 
 
 // 2048 * 8 ticks per turn
@@ -199,7 +199,7 @@ typedef struct L3GD20_Handle {
 
 
 /****************************************************************************
- * 								GYRO
+ * 								DEMUX
  ****************************************************************************/
 
 typedef struct Demux_Handle {
@@ -210,6 +210,16 @@ typedef struct Demux_Handle {
 }Demux_Handle;
 
 /****************************************************************************
+ * 								KICKER
+ ****************************************************************************/
+
+typedef struct Kicker_Handle {
+	GPIO_Number_e kick_pin;
+	bool activated;
+	int duration;
+}Kicker_Handle;
+
+/*******************HandleRobot.*********************************************************
  * 								IMU
  ****************************************************************************/
 
@@ -291,6 +301,7 @@ typedef struct Robot_Handle {
     PIE_Handle HandlePIE;
 
     // Robot
+    Kicker_Handle HandleKicker;
     Demux_Handle HandleDemux;
     nRF24L01_Handle HandleRF;
     quad_Handle HandleQuad[2];
@@ -308,6 +319,7 @@ typedef struct Robot_Handle {
 // Global variable!
 extern Robot_Handle HandleRobot;
 
+#define HandleKicker  HandleRobot.HandleKicker
 #define HandleDemux  HandleRobot.HandleDemux
 #define HandleRF  HandleRobot.HandleRF
 #define HandleGyro  HandleRobot.HandleGyro

@@ -1,6 +1,6 @@
 /*
  * quad_driver.h
- *
+ * For the IC-MDTSSOP20
  *  Created on: 2013-11-08
  *      Author: Mathieu Garon
  */
