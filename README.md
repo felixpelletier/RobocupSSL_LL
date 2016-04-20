@@ -4,7 +4,6 @@ Description of the content of the various folders:
  * ArduinoRobot : Source code for the on-board arduino.
  * DebugTools : Various Testing tools.
  * C2000Robot : Onboard low-level C code for C2000 MCU of the RobocupSSL robot.
- * RobocupV2_2 : Onboard low-level C code for C2000 MCU of the RobocupSSL's robot. (deprecated)
  * C2000RadioBase : Onboard low-level C code for C2000 MCU the radio telecommunication between the Master computer and the robot swarm.
 
 ##Starting low-level development##
